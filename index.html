@@ -1575,6 +1575,15 @@
   renderEmpBar(); renderCalendar(); renderStats(); renderSalary();
   if (!safeStorage.get('PVZ_TOUR_COMPLETED_V2')) { setTimeout(startTour, 700); }
 
+  // Открытие Telegram во внешнем браузере (только для t.me)
+  document.addEventListener('click', function(e) {
+    var el = e.target.closest('a[href*="t.me"]');
+    if (el) {
+      e.preventDefault();
+      try { window.open(el.href, '_system'); } catch(_) { try { window.open(el.href, '_blank'); } catch(__) {} }
+    }
+  });
+
   $$('button, .icon-action, .nav-btn').forEach(attachRipple);
 })();
 </script>
