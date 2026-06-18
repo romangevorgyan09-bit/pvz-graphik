@@ -562,7 +562,7 @@
           <div style="font-size:10px;color:var(--text-dim);">Разработчик</div>
         </div>
       </div>
-      <div><a href="https://t.me/Roman2000123" target="_blank" class="about-tg-badge">✈️ Написать в Telegram</a></div>
+      <div><a href="https://t.me/Roman2000123" class="about-tg-badge" onclick="event.preventDefault(); window.open('https://t.me/Roman2000123', '_system');">✈️ Написать в Telegram</a></div>
     </div>
     <div style="background:var(--card-2);border:1px solid var(--border);border-radius:12px;padding:12px;font-size:11px;line-height:1.5;">
       • <strong>Календарь</strong>: Drag-выделение дат, цветные круги по сотрудникам.<br>
@@ -1627,8 +1627,27 @@
     });
   }
 
+
+  // EXTERNAL LINKS HANDLER — открывает ссылки во внешнем браузере
+  document.addEventListener('click', function(e) {
+    var link = e.target.closest('a');
+    if (!link) return;
+    var href = link.getAttribute('href');
+    if (!href) return;
+    
+    // Открываем внешние ссылки (не на этот же сайт) в настоящем браузере
+    if (href.startsWith('http') && !href.includes('romangevorgyan09-bit.github.io/pvz-graphik')) {
+      e.preventDefault();
+      try {
+        window.open(href, '_system');
+      } catch(_) {
+        try { window.open(href, '_blank'); } catch(__) {}
+      }
+    }
+  });
+
   $$('button, .icon-action, .nav-btn').forEach(attachRipple);
-})();
+
 </script>
 </body>
 </html>
