@@ -358,6 +358,18 @@
   <div class="splash-sub">Расписание &amp; Учёт</div>
   <div class="spinner"></div>
 </div>
+<script>
+// Аварийный сброс сплеш-экрана — сработает через 2 сек в ЛЮБОМ случае
+(function(){
+  var sp = document.getElementById('splash');
+  if (sp) {
+    setTimeout(function(){
+      sp.classList.add('hide');
+      setTimeout(function(){ sp.style.display = 'none'; }, 400);
+    }, 2000);
+  }
+})();
+</script>
 <div id="offlineBanner">📡 Нет подключения к интернету — работаем офлайн</div>
 <div class="app" role="application">
   <header class="topbar">
@@ -1599,14 +1611,14 @@
   renderEmpBar(); renderCalendar(); renderStats(); renderSalary();
   if (!safeStorage.get('PVZ_TOUR_COMPLETED_V2')) { setTimeout(startTour, 700); }
 
-  // SPLASH SCREEN HIDE
-  window.addEventListener('load', function() {
-    setTimeout(function() {
-      var sp = document.getElementById('splash');
-      if (sp) sp.classList.add('hide');
+  // SPLASH SCREEN HIDE — надёжное скрытие
+  (function hideSplash() {
+    var sp = document.getElementById('splash');
+    if (sp && sp.style.display !== 'none') {
+      sp.classList.add('hide');
       setTimeout(function() { if (sp) sp.style.display = 'none'; }, 400);
-    }, 300);
-  });
+    }
+  })();
   // OFFLINE DETECTION
   window.addEventListener('offline', function() {
     var ob = document.getElementById('offlineBanner');
