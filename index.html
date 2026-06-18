@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="theme-color" content="#09090e" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#eef1f6" media="(prefers-color-scheme: light)" />
+<meta name="format-detection" content="telephone=no" />
+<title>ПВЗ График</title>
+<link rel="manifest" href="manifest.json" />
+<meta name="apple-mobile-web-app-title" content="ПВЗ График">
+<style>
+
+  /* SPLASH SCREEN */
+  #splash{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);transition:opacity .35s ease,transform .35s ease;pointer-events:none;}
+  #splash.hide{opacity:0;transform:scale(1.05);}
+  #splash .logo{width:64px;height:64px;background:var(--logo-bg);color:var(--logo-text);border-radius:18px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:32px;box-shadow:0 8px 24px rgba(255,219,77,0.2);animation:splashPulse 1.2s ease-in-out infinite alternate;}
+  @keyframes splashPulse{from{transform:scale(1);box-shadow:0 8px 24px rgba(255,219,77,0.2);}to{transform:scale(1.05);box-shadow:0 12px 32px rgba(255,219,77,0.35);}}
+  #splash .splash-title{font-size:18px;font-weight:800;margin-top:16px;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  #splash .splash-sub{font-size:10px;color:var(--text-dim);margin-top:4px;text-transform:uppercase;letter-spacing:2px;font-weight:700;}
+  #splash .spinner{margin-top:24px;width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  @media(prefers-reduced-motion:reduce){#splash .logo{animation:none;}#splash .spinner{animation:none;}}
+  /* OFFLINE BANNER */
+  #offlineBanner{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,61,77,0.12);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);text-align:center;padding:6px;font-size:10px;font-weight:700;color:var(--action);border-bottom:1px solid rgba(255,61,77,0.15);display:none;pointer-events:none;}
+  
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  :root {
+    --yellow:#ffdb4d;--red:#ff3d4d;--red-glow:rgba(255,61,77,.3);--green:#34d399;--green-glow:rgba(52,211,153,.2);
+    --bg:#09090e;--bg-2:#111118;--card:rgba(22,22,32,0.8);--card-2:rgba(28,28,40,0.9);
+    --text:#f5f5f9;--text-dim:#8b8b9c;--border:rgba(255,255,255,0.06);
+    --accent:var(--yellow);--accent-2:#ffaa00;--accent-text:#000;--action:var(--red);
+    --topbar-bg:linear-gradient(180deg, rgba(9,9,14,0.94), rgba(9,9,14,0.82));
+    --logo-bg:linear-gradient(135deg,#ffdb4d,#ffaa00);--logo-text:#000;--shadow-card:0 6px 16px rgba(0,0,0,.15);
+    --app-max-w:540px;--app-max-w-desktop:720px;--blur-amount:16px;--radius:16px;
+  }
+  [data-theme="light"] {
+    --bg:#f1f3f7;--bg-2:#e4e8f1;--card:#ffffff;--card-2:#f8fafc;
+    --text:#0f172a;--text-dim:#627285;--border:rgba(15,23,42,0.08);
+    --topbar-bg:linear-gradient(180deg, #ffffff, #f1f3f7);
+    --shadow-card:0 4px 12px rgba(15,23,42,0.06);
+    --logo-bg:linear-gradient(135deg,#475569,#0f172a);--logo-text:#fff;
+  }
+  @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important;}}
+  html,body{width:100%;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;user-select:none;-webkit-user-select:none;overscroll-behavior:none;transition:background-color .3s,color .3s;-webkit-text-size-adjust:100%;text-size-adjust:100%;-webkit-font-smoothing:antialiased;}
+  body{overflow-x:hidden;position:relative;min-height:100dvh;}
+  input,textarea,[contenteditable]{user-select:text;-webkit-user-select:text;}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px;}
+  :focus:not(:focus-visible){outline:none;}
+  @keyframes circleIn{0%{transform:scale(0);opacity:0;}60%{transform:scale(1.1);opacity:1;}100%{transform:scale(1);opacity:1;}}
+  @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pulseGlow{0%{box-shadow:0 0 0 0 rgba(255,219,77,0.4)}70%{box-shadow:0 0 0 6px rgba(255,219,77,0)}100%{box-shadow:0 0 0 0 rgba(255,219,77,0)}}
+  .app{max-width:var(--app-max-w);margin:0 auto;min-height:100dvh;padding:env(safe-area-inset-top,0) 0 calc(env(safe-area-inset-bottom,0) + 94px);position:relative;z-index:1;}
+  @media(min-width:768px){.app{max-width:var(--app-max-w-desktop);}.bottom-nav{max-width:calc(var(--app-max-w-desktop) - 24px) !important;}.modal-sheet{max-width:var(--app-max-w-desktop) !important;}}
+  @media(min-width:1100px){:root{--app-max-w-desktop:1080px;}.desktop-grid{display:grid;grid-template-columns:1fr 380px;gap:16px;align-items:start;}.legend,.stats,.salary-card{margin-left:0;margin-right:0;}}
+  /* TOPBAR */
+  .topbar{position:sticky;top:0;z-index:30;background:var(--topbar-bg);backdrop-filter:blur(var(--blur-amount));-webkit-backdrop-filter:blur(var(--blur-amount));padding:12px 16px;padding-top:calc(env(safe-area-inset-top,0) + 12px);border-bottom:1px solid var(--border);transition:background .3s;contain:layout style;}
+  .topbar-row{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand-logo{width:38px;height:38px;background:var(--logo-bg);color:var(--logo-text);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;box-shadow:0 4px 10px rgba(0,0,0,.15);}
+  .brand-name{font-size:15px;font-weight:800;letter-spacing:-0.2px;}
+  .brand-sub{font-size:10px;color:var(--text-dim);margin-top:1px;font-weight:700;letter-spacing:.8px;}
+  .topbar-actions{display:flex;gap:8px;}
+  .icon-action{width:38px;height:38px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .12s,background .15s;}
+  .icon-action:hover{background:var(--card-2);}
+  .icon-action:active{transform:scale(.92);}
+  /* EMP BAR */
+  .emp-bar{background:var(--bg-2);padding:10px 12px;border-bottom:1px solid var(--border);overflow-x:auto;display:flex;gap:8px;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;}
+  .emp-bar::-webkit-scrollbar{display:none;}
+  .emp-chip{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:6px 12px 6px 6px;background:var(--card);border:1.5px solid transparent;border-radius:99px;font-size:12px;font-weight:700;cursor:pointer;transition:transform .1s,border-color .15s,background .15s;color:var(--text);white-space:nowrap;scroll-snap-align:start;}
+  .emp-chip.active{background:var(--card-2);border-color:var(--accent);box-shadow:0 0 6px rgba(255,219,77,0.15);}
+  .emp-chip .avatar{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:9px;box-shadow:inset 0 -2px 0 rgba(0,0,0,.2);}
+  .emp-chip.all .avatar{background:linear-gradient(135deg,var(--accent),var(--action));color:var(--accent-text);}
+  /* MONTH NAV */
+  .month-nav{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 4px;gap:8px;}
+  .month-title{font-size:18px;font-weight:800;text-transform:capitalize;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent;text-align:center;flex:1;}
+  .month-nav button{width:36px;height:36px;border:1px solid var(--border);background:var(--card);border-radius:10px;font-size:14px;cursor:pointer;color:var(--text);transition:transform .12s,background .15s;}
+  .month-nav button:active{transform:scale(.92);}
+  .month-nav-right{display:flex;align-items:center;gap:4px;}
+  .today-btn{padding:8px 12px !important;width:auto !important;font-size:10px !important;font-weight:800;background:linear-gradient(135deg,var(--action),var(--accent-2)) !important;color:#fff !important;text-transform:uppercase;letter-spacing:1px;border:0 !important;box-shadow:0 4px 10px rgba(0,0,0,.15) !important;}
+  .drag-mode-hint{display:block;margin:6px 12px;padding:8px 12px;background:linear-gradient(135deg,rgba(255,219,77,.1),rgba(255,170,0,.03));border:1px dashed var(--accent);border-radius:10px;font-size:11px;font-weight:700;color:var(--text);text-align:center;}
+  /* CALENDAR */
+  .calendar{margin:4px 12px 0;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;touch-action:pan-y;backdrop-filter:blur(var(--blur-amount));-webkit-backdrop-filter:blur(var(--blur-amount));box-shadow:var(--shadow-card);contain:layout style;}
+  .week-header{display:grid;grid-template-columns:repeat(7,1fr);background:var(--bg-2);border-bottom:1px solid var(--border);}
+  .week-header div{text-align:center;padding:8px 0;font-size:10px;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;}
+  .week-header div:nth-child(6),.week-header div:nth-child(7){color:var(--action);}
+  .days{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);}
+  .day{background:var(--card);aspect-ratio:1/1.05;cursor:pointer;position:relative;display:flex;align-items:center;justify-content:center;transition:background .12s;min-height:48px;overflow:hidden;transform:translateZ(0);}
+  .day:hover,.day:active{background:var(--card-2);}
+  [data-theme="dark"] .day.other-month .day-num{color:#363645;}
+  [data-theme="light"] .day.other-month .day-num{color:#cbd5e1;}
+  .day.weekend .day-num{color:var(--action);opacity:.9;}
+  .day-circle{width:76%;aspect-ratio:1/1;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;transition:background .2s,transform .15s;}
+  .day-num{font-size:13px;font-weight:700;color:var(--text);z-index:2;position:relative;}
+  .day.today .day-circle{background:rgba(255,219,77,.12);border:1.5px solid var(--accent);animation:pulseGlow 2s infinite;}
+  .day.today .day-num{color:var(--accent);font-weight:900;}
+  .day.has-shift .day-circle{background:var(--shift-color);box-shadow:0 3px 10px var(--shift-color-glow);animation:circleIn .3s cubic-bezier(.34,1.4,.64,1);}
+  .day.has-shift .day-num{color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.35);font-weight:800;}
+  .day.has-shift.multi .day-circle{background:var(--shift-gradient);}
+  .day.drag-selected .day-circle{background:rgba(255,219,77,.25) !important;border:1.5px solid var(--accent) !important;}
+  .day.drag-selected .day-num{color:var(--accent) !important;}
+  .day-icon{position:absolute;top:3px;right:4px;font-size:9px;z-index:4;}
+  .day-count{position:absolute;bottom:3px;left:4px;background:rgba(0,0,0,.6);color:#fff;font-size:8px;font-weight:800;padding:1px 4px;border-radius:9px;line-height:1.2;z-index:4;}
+  /* CARDS */
+  .legend,.stats,.salary-card,.section{margin:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;backdrop-filter:blur(var(--blur-amount));-webkit-backdrop-filter:blur(var(--blur-amount));box-shadow:var(--shadow-card);transition:background .3s,border-color .3s;contain:layout style;}
+  .legend h3,.stats h3,.salary-card h3,.section h3{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:8px;}
+  .legend-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;}
+  .legend-item{display:flex;align-items:center;gap:6px;font-size:11px;}
+  .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;box-shadow:inset 0 -2px 0 rgba(0,0,0,.2);}
+  .stat-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);gap:8px;}
+  .stat-row:last-child{border-bottom:0;}
+  .stat-emp{display:flex;align-items:center;gap:10px;min-width:0;flex:1;}
+  .stat-emp .avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px;box-shadow:inset 0 -2px 0 rgba(0,0,0,.2);flex-shrink:0;}
+  .stat-emp .name{font-weight:700;font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .stat-emp .role-small{font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.3px;}
+  .stat-vals{display:flex;gap:12px;flex-shrink:0;}
+  .stat-val{text-align:right;}
+  .stat-val .v{font-size:14px;font-weight:800;color:var(--text);}
+  .stat-val .l{font-size:8px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.3px;}
+  /* SALARY */
+  .salary-card{background:linear-gradient(135deg,rgba(52,211,153,.08),rgba(255,219,77,.05));border-color:rgba(52,211,153,0.18);}
+  [data-theme="light"] .salary-card{background:linear-gradient(135deg,rgba(52,211,153,.04),rgba(255,219,77,.02));}
+  .salary-card h3 .total-summary{color:var(--green);font-size:13px;font-weight:800;text-transform:none;letter-spacing:0;}
+  .salary-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);gap:8px;}
+  .salary-row:last-child{border-bottom:0;}
+  .salary-row .salary-info{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
+  .salary-row .avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px;box-shadow:inset 0 -2px 0 rgba(0,0,0,.2);flex-shrink:0;}
+  .salary-row .info{min-width:0;flex:1;}
+  .salary-row .info .nm{font-weight:700;font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .salary-row .info .rt{font-size:10px;color:var(--text-dim);margin-top:2px;}
+  .salary-row .sum{font-weight:800;font-size:16px;color:var(--green);white-space:nowrap;}
+  .salary-row .sum.zero{color:var(--text-dim);}
+  .salary-row .breakdown{font-size:9px;color:var(--text-dim);margin-top:2px;text-align:right;}
+  .salary-chart-section {display:flex;align-items:center;justify-content:center;padding:8px 0;gap:20px;border-bottom:1px dashed var(--border);}
+  .salary-svg{filter:drop-shadow(0 4px 8px rgba(0,0,0,0.12));}
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 24px);
+    max-width: calc(var(--app-max-w) - 24px);
+    background: rgba(17, 17, 24, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1.5px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 8px 10px calc(env(safe-area-inset-bottom,0)/2 + 8px) 10px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 25;
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+    transition: background .3s, border-color .3s, transform .2s;
+  }
+  [data-theme="light"] .bottom-nav {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1.5px solid rgba(15, 23, 42, 0.09);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  }
+  .nav-btn {
+    flex: 1;
+    background: transparent;
+    border: 0;
+    padding: 2px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-dim);
+    transition: color .2s, transform .15s;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: inherit;
+    min-width: 0;
+    position: relative;
+    border-radius: 12px;
+  }
+  .nav-btn .nav-icon-wrapper {
+    width: 48px;
+    height: 28px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: background 0.25s, transform 0.25s, box-shadow 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .nav-btn.active {
+    color: var(--accent);
+  }
+  .nav-btn.active .nav-icon-wrapper {
+    background: rgba(255, 219, 77, 0.16);
+    transform: translateY(-2px) scale(1.08);
+    box-shadow: 0 4px 10px rgba(255, 219, 77, 0.1);
+  }
+  [data-theme="light"] .nav-btn.active .nav-icon-wrapper {
+    background: rgba(255, 170, 0, 0.12);
+    box-shadow: 0 4px 10px rgba(255, 170, 0, 0.06);
+  }
+  .nav-btn span:not(.ic) {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    transition: color 0.18s;
+  }
+  .nav-btn.active span:not(.ic) {
+    color: var(--accent);
+    font-weight: 800;
+  }
+  .nav-btn:hover {
+    color: var(--text);
+  }
+  /* MODALS */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:100;display:none;align-items:flex-end;justify-content:center;}
+  [data-theme="light"] .modal{background:rgba(0,0,0,.35);}
+  .modal.show{display:flex;}
+  .modal-sheet{background:var(--bg-2);border-top:1px solid var(--border);width:100%;max-width:var(--app-max-w);border-radius:20px 20px 0 0;padding:16px 16px calc(env(safe-area-inset-bottom,0) + 16px);animation:slideUp .22s cubic-bezier(.15,.88,.3,1);max-height:88dvh;overflow-y:auto;overscroll-behavior:contain;box-shadow:0 -8px 30px rgba(0,0,0,.4);-webkit-overflow-scrolling:touch;}
+  @media(min-width:768px){.modal{align-items:center;}.modal-sheet{border-radius:16px;max-height:80dvh;height:auto;}}
+  .modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 12px;}
+  .modal-title{font-size:17px;font-weight:800;text-align:center;margin-bottom:3px;color:var(--text);}
+  .modal-sub{text-align:center;color:var(--text-dim);font-size:12px;margin-bottom:14px;}
+  /* DRAG INFO */
+  .drag-confirm-info{background:var(--card);border:1px solid var(--accent);border-radius:12px;padding:10px;margin-bottom:12px;text-align:center;}
+  .drag-confirm-info .big{font-size:22px;font-weight:900;color:var(--accent);}
+  .drag-confirm-info .sub{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;}
+  .drag-confirm-info .dates-list{margin-top:6px;font-size:11px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  /* SHIFT OPTIONS */
+  .shift-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:6px;margin-bottom:12px;}
+  .shift-opt{padding:10px 4px;border-radius:10px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;text-align:center;transition:transform .1s,border-color .15s,background .15s;position:relative;overflow:hidden;font-family:inherit;}
+  .shift-opt:active{transform:scale(.95);}
+  .shift-opt.selected{border-color:var(--accent);background:var(--card-2);box-shadow:0 0 6px rgba(255,219,77,0.1);}
+  .shift-opt .ic{font-size:20px;display:block;margin-bottom:3px;}
+  .shift-opt .lbl{font-weight:700;font-size:11px;color:var(--text);display:block;}
+  .shift-opt .hrs{font-size:9px;color:var(--text-dim);margin-top:1px;display:block;}
+  .shift-opt .color-bar{position:absolute;top:0;left:0;right:0;height:3px;}
+  /* FORMS & FIELDS */
+  .field{margin-bottom:10px;}
+  .field label{display:block;font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:700;}
+  .field input,.field textarea,.field select{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);font-size:15px;font-family:inherit;outline:none;transition:border-color .15s,background .15s;-webkit-appearance:none;appearance:none;}
+  .field select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238b8b9a' viewBox='0 0 16 16'><path d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 01.753 1.659l-4.796 5.48a1 1 0 01-1.506 0z'/></svg>");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+  .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);background:var(--card-2);}
+  .field textarea{resize:vertical;min-height:70px;line-height:1.4;}
+  .time-row{display:flex;gap:6px;}
+  .time-row .field{flex:1;}
+  .btn-row{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;}
+  .btn{flex:1;padding:12px;border-radius:10px;border:0;cursor:pointer;font-size:14px;font-weight:800;transition:transform .1s,background .15s;font-family:inherit;min-width:90px;}
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:var(--accent-text);box-shadow:0 4px 12px rgba(255,219,77,.15);}
+  .btn-ghost{background:var(--card);color:var(--text);border:1px solid var(--border);}
+  .btn-red{background:linear-gradient(135deg,var(--action),var(--accent-2));color:#fff;}
+  .btn-danger{background:rgba(255,61,77,.1);color:var(--action);border:1px solid rgba(255,61,77,.25);}
+  /* DETAILS */
+  .day-shift-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+  .day-shift-card{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px;border-left-width:4px;animation:fadeIn .2s ease;}
+  .day-shift-card .avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px;box-shadow:inset 0 -2px 0 rgba(0,0,0,.2);flex-shrink:0;}
+  .day-shift-card .ds-info{flex:1;min-width:0;}
+  .day-shift-card .ds-name{font-weight:700;font-size:13px;color:var(--text);}
+  .day-shift-card .ds-meta{font-size:10px;color:var(--text-dim);margin-top:1px;}
+  .day-shift-card .ds-del{width:28px;height:28px;border-radius:8px;border:1px solid rgba(255,61,77,.2);background:rgba(255,61,77,.08);color:var(--action);cursor:pointer;font-size:12px;transition:transform .1s,background .12s;}
+  .day-shift-card .ds-del:active{transform:scale(.9);}
+  /* SETTINGS */
+  .emp-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+  .emp-list-item{display:flex;align-items:center;gap:10px;padding:10px;background:var(--card-2);border:1px solid var(--border);border-radius:10px;}
+  .emp-list-item .avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;box-shadow:inset 0 -2px 0 rgba(0,0,0,.2);flex-shrink:0;}
+  .emp-list-item .info{flex:1;min-width:0;}
+  .emp-list-item .name{font-weight:700;font-size:13px;}
+  .emp-list-item .role{font-size:10px;color:var(--text-dim);margin-top:1px;}
+  .emp-list-item .icon-action{width:32px;height:32px;}
+  .colors-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+  .color-swatch{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid var(--border);transition:transform .1s,border-color .15s;}
+  .color-swatch.active{border-color:var(--accent);transform:scale(1.08);}
+  /* THEME */
+  .theme-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;}
+  .theme-card{border-radius:12px;overflow:hidden;position:relative;cursor:pointer;border:2px solid transparent;transition:transform .12s,border-color .15s;outline:none;}
+  .theme-card.active{border-color:var(--accent);transform:translateY(-1px);}
+  .theme-card .theme-preview{width:100%;height:32px;}
+  .theme-card .theme-label{width:100%;padding:6px;background:var(--card);color:var(--text);text-align:center;}
+  .theme-card .theme-label .nm{font-size:11px;font-weight:700;}
+  .rate-input-wrap{position:relative;}
+  .rate-input-wrap input{padding-right:32px;}
+  .rate-input-wrap::after{content:'₽';position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-weight:700;font-size:13px;pointer-events:none;}
+  .rate-type-row{display:flex;gap:4px;}
+  .rate-type-row .rate-type-btn{flex:1;padding:10px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text-dim);font-size:12px;font-weight:700;cursor:pointer;transition:background .12s,border-color .12s;}
+  .rate-type-row .rate-type-btn.active{background:rgba(255,219,77,.1);border-color:var(--accent);color:var(--accent);}
+  /* NOTES */
+  .notes-header{padding:12px 16px 4px;display:flex;justify-content:space-between;align-items:center;}
+  .notes-title{font-size:18px;font-weight:800;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .notes-search{margin:0 12px 10px;}
+  .notes-search input{width:100%;padding:10px 12px 10px 34px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:15px;outline:none;font-family:inherit;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%238b8b9a' viewBox='0 0 16 16'><path d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/></svg>");background-repeat:no-repeat;background-position:12px center;}
+  .notes-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px;padding:2px 12px;}
+  .note-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;box-shadow:var(--shadow-card);cursor:pointer;animation:fadeIn .2s ease;transition:transform .1s,background .12s;}
+  .note-item:hover{background:var(--card-2);transform:translateY(-1px);}
+  .note-item-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;gap:8px;}
+  .note-item-title{font-weight:800;font-size:14px;color:var(--text);word-break:break-all;}
+  .note-item-date{font-size:10px;font-weight:700;color:var(--text-dim);flex-shrink:0;}
+  .note-item-txt{font-size:12px;color:var(--text-dim);line-height:1.4;white-space:pre-wrap;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+  /* FAB BUTTON */
+  .fab-btn{position:fixed !important;bottom:104px !important;bottom:calc(env(safe-area-inset-bottom,0) + 104px) !important;right:20px !important;left:auto !important;width:52px !important;height:52px !important;border-radius:50% !important;background:linear-gradient(135deg,var(--red),#ff6b6b) !important;color:#fff !important;font-size:24px !important;border:0 !important;cursor:pointer !important;display:flex !important;align-items:center !important;justify-content:center !important;box-shadow:0 4px 14px var(--red-glow) !important;z-index:99 !important;transition:transform .1s !important;}
+  .fab-btn:active{transform:scale(0.92);}
+  /* TOAST */
+  .toast{position:fixed;bottom:calc(env(safe-area-inset-bottom,0) + 102px);left:50%;transform:translate(-50%,15px);background:rgba(9,9,14,0.95);border:1px solid var(--border);color:#fff;padding:8px 16px;border-radius:99px;font-size:12px;font-weight:700;z-index:200;pointer-events:none;opacity:0;transition:opacity .18s,transform .18s;box-shadow:0 6px 20px rgba(0,0,0,.35);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);max-width:calc(100% - 32px);text-align:center;}
+  .toast.show{opacity:1;transform:translate(-50%,0);}
+  /* TELEGRAM BUTTON AND BADGE */
+  .about-tg-badge {display:inline-flex;align-items:center;gap:6px;background:rgba(30,150,227,0.12);border:1px solid rgba(30,150,227,0.3);color:#1e96e3;padding:4px 10px;border-radius:99px;font-size:10px;font-weight:800;margin-top:4px;}
+  /* CUSTOM DIALOG */
+  .confirm-dialog{background:var(--bg-2);border:1px solid var(--border);border-radius:14px;padding:16px;max-width:320px;width:calc(100% - 32px);box-shadow:0 12px 40px rgba(0,0,0,.4);animation:fadeIn .18s ease;}
+  .confirm-dialog h3{font-size:15px;color:var(--text);margin-bottom:6px;}
+  .confirm-dialog p{font-size:12px;color:var(--text-dim);margin-bottom:14px;line-height:1.4;}
+  /* RIPPLE EFFECT */
+  .ripple-container{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1;}
+  .ripple-ring{position:absolute;border-radius:50%;background:rgba(255,219,77,0.18);transform:translate(-50%,-50%) scale(0);animation:rippleEffect .45s cubic-bezier(0.1,0.8,0.3,1) forwards;}
+  @keyframes rippleEffect{to{transform:translate(-50%,-50%) scale(1);opacity:0;}}
+  /* TUOR INTERACTIVE STYLE */
+  .tour-container{position:fixed;inset:0;z-index:99999;pointer-events:none;}
+  .tour-blocker{position:fixed;inset:0;z-index:99998;pointer-events:auto;background:transparent;}
+  .tour-spotlight{position:fixed;border-radius:10px;box-shadow:0 0 0 9999px rgba(9,9,14,0.7);border:2px solid var(--accent);transition:all 0.28s ease-out;pointer-events:none;z-index:100000;}
+  .tour-spotlight::after{content:'';position:absolute;inset:-4px;border:1.5px solid var(--accent);border-radius:12px;opacity:0;animation:tourPulse 2s infinite;}
+  @keyframes tourPulse{0%{transform:scale(0.98);opacity:0.8;}50%{transform:scale(1.03);opacity:0.15;}100%{transform:scale(1.05);opacity:0;}}
+  .tour-popover{position:fixed;z-index:100001;background:var(--card-2);border:1.5px solid var(--accent);border-radius:16px;padding:14px;width:300px;max-width:calc(100vw - 24px);box-shadow:0 10px 30px rgba(0,0,0,0.5);pointer-events:auto;transition:all 0.28s ease-out;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);animation:tourPopIn 0.25s cubic-bezier(.15,.88,.3,1.2);}
+  @keyframes tourPopIn{from{opacity:0;transform:translateY(8px) scale(0.96);}to{opacity:1;transform:translateY(0) scale(1);}}
+  .tour-popover-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  .tour-popover-title{font-size:14px;font-weight:800;color:var(--text);}
+  .tour-popover-step{font-size:9px;font-weight:700;background:rgba(255,219,77,0.12);color:var(--accent);padding:2px 6px;border-radius:99px;}
+  .tour-popover-body{font-size:12px;line-height:1.45;color:var(--text);margin-bottom:12px;}
+  .tour-popover-body strong{color:var(--accent);}
+  .tour-popover-footer{display:flex;justify-content:space-between;align-items:center;gap:6px;}
+  .tour-popover-footer .btn{font-size:11px;padding:6px 10px;border-radius:8px;min-width:50px;margin:0;}
+  .tour-popover-footer .btn-ghost{color:var(--text-dim);}
+  .tour-nav-btns{display:flex;gap:4px;}
+  /* PRINT OPTIMIZATION */
+  @media print {
+    body{background:#fff !important;color:#000 !important;}
+    .bottom-nav,.topbar,.emp-bar,.month-nav button,.drag-mode-hint,.btn-ghost,.fab-btn,.toast{display:none !important;}
+    .app{max-width:100% !important;padding:0 !important;margin:0 !important;}
+    .calendar{border:2px solid #000 !important;background:#fff !important;box-shadow:none !important;border-radius:0 !important;}
+    .week-header{background:#f0f0f0 !important;border-bottom:2px solid #000 !important;}
+    .day{background:#fff !important;border:1px solid #ddd !important;}
+    .day.has-shift{background:#f1f5f9 !important;}
+    .day-num{color:#000 !important;text-shadow:none !important;}
+    .legend,.stats,.salary-card{background:#fff !important;border:1px solid #000 !important;box-shadow:none !important;border-radius:0 !important;page-break-inside:avoid;}
+  }
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <div class="logo">📊</div>
+  <div class="splash-title">ПВЗ График</div>
+  <div class="splash-sub">Расписание &amp; Учёт</div>
+  <div class="spinner"></div>
+</div>
+<div id="offlineBanner">📡 Нет подключения к интернету — работаем офлайн</div>
+<div class="app" role="application">
+  <header class="topbar">
+    <div class="topbar-row">
+      <div class="brand">
+        <div class="brand-logo" aria-hidden="true">📊</div>
+        <div>
+          <div class="brand-name">ПВЗ График</div>
+          <div class="brand-sub">РАСПИСАНИЕ & УЧЕТ</div>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-action" id="tourStartBtn" title="Обучение">🎓</button>
+        <button class="icon-action" id="textExportBtn" title="Копировать текстовый отчёт">📄</button>
+        <button class="icon-action" id="exportBtn" title="Печать PDF">📤</button>
+      </div>
+    </div>
+  </header>
+  <nav class="emp-bar" id="empBar"></nav>
+  <main id="viewSchedule">
+    <div class="desktop-grid">
+      <div class="calendar-col">
+        <div class="month-nav">
+          <button id="prevMonthBtn">◀</button>
+          <div class="month-title" id="monthTitle">Июнь 2026</div>
+          <div class="month-nav-right">
+            <button class="today-btn" id="todayBtn">Сегодня</button>
+            <button id="nextMonthBtn">▶</button>
+          </div>
+        </div>
+        <div class="drag-mode-hint">💡 Проведи по датам для массового быстрого выделения дней!</div>
+        <div class="calendar" id="calendar">
+          <div class="week-header">
+            <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
+          </div>
+          <div class="days" id="daysGrid"></div>
+        </div>
+        <div class="legend">
+          <h3>Типы смен</h3>
+          <div class="legend-grid" id="legendGrid"></div>
+        </div>
+      </div>
+      <aside>
+        <div class="stats">
+          <h3>Отработанные смены / часы</h3>
+          <div id="statsContainer"></div>
+        </div>
+        <div class="salary-card">
+          <h3>Расчёт зарплаты <span class="total-summary" id="totalSalarySummary">Всего: 0 ₽</span></h3>
+          <div class="salary-chart-section" id="salaryChartSection">
+            <div id="salaryChartContainer"></div>
+          </div>
+          <div id="salaryContainer"></div>
+        </div>
+      </aside>
+    </div>
+  </main>
+  <section id="viewNotes" hidden>
+    <div class="notes-header"><div class="notes-title">Личные заметки</div></div>
+    <div class="notes-search"><input type="search" id="notesSearchInput" placeholder="Поиск заметок..." /></div>
+    <div class="notes-list" id="notesList"></div>
+    <button class="fab-btn" id="addNoteFabBtn" style="position:fixed !important; bottom:calc(env(safe-area-inset-bottom,0) + 104px) !important; right:20px !important; left:auto !important; width:52px !important; height:52px !important; border-radius:50% !important; background:linear-gradient(135deg,var(--red),#ff6b6b) !important; color:#fff !important; font-size:24px !important; border:0 !important; cursor:pointer !important; display:flex !important; align-items:center !important; justify-content:center !important; box-shadow:0 4px 14px var(--red-glow) !important; z-index:99 !important;">+</button>
+  </section>
+  <section id="viewSettings" hidden>
+    <div class="month-nav"><div class="notes-title">Настройки</div></div>
+    <div class="section">
+      <h3>Сотрудники</h3>
+      <div class="emp-list" id="settingsEmpList"></div>
+      <button class="btn btn-ghost" id="addNewEmpBtn" style="width:100%;font-size:12px;padding:8px;">+ Добавить сотрудника</button>
+    </div>
+    <div class="section">
+      <h3>Тема оформления</h3>
+      <div class="theme-grid" id="themeGrid"></div>
+    </div>
+    <div class="section">
+      <h3>Обучение</h3>
+      <button class="btn btn-primary" id="settingsTourBtn" style="width:100%;font-size:12.5px;padding:9px;">🎓 Запустить интерактивный тур</button>
+    </div>
+    <div class="section">
+      <h3>Резервные копии и сброс</h3>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <button class="btn btn-ghost" id="exportJsonBtn" style="font-size:11px;padding:8px;">💾 Скачать бэкап (JSON)</button>
+        <button class="btn btn-ghost" id="importBtn" style="font-size:11px;padding:8px;">📥 Загрузить бэкап (JSON)</button>
+        <button class="btn btn-danger" id="clearAllDataBtn" style="font-size:11px;padding:8px;">⚠️ Полный сброс всех данных</button>
+      </div>
+    </div>
+  </section>
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-view="schedule">
+      <div class="nav-icon-wrapper"><span class="ic">📅</span></div>
+      <span>Календарь</span>
+    </button>
+    <button class="nav-btn" data-view="notes">
+      <div class="nav-icon-wrapper"><span class="ic">📝</span></div>
+      <span>Заметки</span>
+    </button>
+    <button class="nav-btn" data-view="settings">
+      <div class="nav-icon-wrapper"><span class="ic">⚙️</span></div>
+      <span>Настройки</span>
+    </button>
+    <button class="nav-btn" id="aboutNavBtn">
+      <div class="nav-icon-wrapper"><span class="ic">ℹ️</span></div>
+      <span>О прог.</span>
+    </button>
+  </nav>
+</div>
+<div class="toast" id="toast">✓ Готово</div>
+<!-- MODALS -->
+<div class="modal" id="dayModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="dayModalTitle">Дата</div>
+    <div class="modal-sub" id="dayModalDayOfWeek">День</div>
+    <div class="day-shift-list" id="dayModalShifts"></div>
+    <div class="add-shift-card">
+      <div class="field" style="display:none;"><select id="modalEmpSelect"></select></div>
+      <div class="shift-options" id="modalShiftOpts"></div>
+      <div class="time-row">
+        <div class="field"><label for="modalStartTime">Начало</label><input type="time" id="modalStartTime"/></div>
+        <div class="field"><label for="modalEndTime">Конец</label><input type="time" id="modalEndTime"/></div>
+      </div>
+      <button class="btn btn-primary" id="modalSaveShiftBtn" style="width:100%;">Сохранить смену</button>
+    </div>
+    <div class="btn-row"><button class="btn btn-ghost" id="modalCloseBtn">Закрыть</button></div>
+  </div>
+</div>
+<div class="modal" id="fillModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="fillTitle">Быстрый график</div>
+    <div class="modal-sub">Заполнение выбранных дней</div>
+    <div class="drag-confirm-info">
+      <div class="big" id="fillModalCount">0</div>
+      <div class="sub">всего дней</div>
+      <div class="dates-list" id="fillModalDatesList"></div>
+    </div>
+    <div class="shift-options" id="fillShiftOpts"></div>
+    <div class="field">
+      <label for="fillPattern">Шаблон</label>
+      <select id="fillPattern">
+        <option value="all">Каждый день подряд</option>
+        <option value="2/2">График 2 через 2</option>
+        <option value="3/3">График 3 через 3</option>
+        <option value="5/2">Пятидневка (Пн-Пт)</option>
+        <option value="1/1">Через день</option>
+      </select>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="fillCancelBtn">Отмена</button>
+      <button class="btn btn-primary" id="fillConfirmBtn">Заполнить</button>
+    </div>
+  </div>
+</div>
+<div class="modal" id="empModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="empModalTitle">Сотрудник</div>
+    <input type="hidden" id="empModalId" />
+    <input type="hidden" id="empModalRateType" value="hour" />
+    <div class="field"><label for="empModalName">Имя</label><input type="text" id="empModalName" autocomplete="off"/></div>
+    <div class="field"><label>Палитра</label><div class="colors-row" id="empModalColors"></div></div>
+    <div class="field">
+      <label>Расчёт оплаты</label>
+      <div class="rate-type-row">
+        <button type="button" class="rate-type-btn active" id="rateTypeHour">Почасовая</button>
+        <button type="button" class="rate-type-btn" id="rateTypeDay">По дням</button>
+      </div>
+    </div>
+    <div class="field"><label for="empModalRate">Ставка (руб.)</label><div class="rate-input-wrap"><input type="number" id="empModalRate" placeholder="0" inputmode="numeric"/></div></div>
+    <div class="btn-row">
+      <button class="btn btn-danger" id="empModalDeleteBtn" style="display:none;">Удалить</button>
+      <button class="btn btn-ghost" id="empModalCancelBtn">Отмена</button>
+      <button class="btn btn-primary" id="empModalSaveBtn">Сохранить</button>
+    </div>
+  </div>
+</div>
+<div class="modal" id="noteEditModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="noteModalTitle">Заметка</div>
+    <input type="hidden" id="noteModalId" />
+    <div class="field"><label for="noteModalHeader">Заголовок</label><input type="text" id="noteModalHeader" placeholder="..." autocomplete="off"/></div>
+    <div class="field"><label for="noteModalBody">Текст заметки</label><textarea id="noteModalBody" placeholder="..."></textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-danger" id="noteModalDeleteBtn" style="display:none;">Удалить</button>
+      <button class="btn btn-ghost" id="noteModalCancelBtn">Отмена</button>
+      <button class="btn btn-primary" id="noteModalSaveBtn">Сохранить</button>
+    </div>
+  </div>
+</div>
+<div class="modal" id="aboutModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">ℹ️ О программе</div>
+    <div class="modal-sub">ПВЗ График v2.0 (Optimized)</div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:12px;text-align:center;">
+      <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;">Автор проекта</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:var(--accent-text);box-shadow:0 3px 10px rgba(255,219,77,.25);">РГ</div>
+        <div style="text-align:left;">
+          <div style="font-weight:800;font-size:14px;">Роман Геворгян</div>
+          <div style="font-size:10px;color:var(--text-dim);">Разработчик</div>
+        </div>
+      </div>
+      <div><a href="https://t.me/Roman2000123" target="_blank" class="about-tg-badge">✈️ Написать в Telegram</a></div>
+    </div>
+    <div style="background:var(--card-2);border:1px solid var(--border);border-radius:12px;padding:12px;font-size:11px;line-height:1.5;">
+      • <strong>Календарь</strong>: Drag-выделение дат, цветные круги по сотрудникам.<br>
+      • <strong>Зарплата</strong>: Dynamic SVG аналитика, гибкие тарифы.<br>
+      • <strong>Заметки</strong>: Моментальный поиск, хранение оффлайн.<br>
+      • <strong>Темы</strong>: Неоновая тёмная и чистая светлая.<br>
+      • <strong>Экспорт</strong>: Выгрузка в текстовые отчёты, печать в PDF и JSON резервирование.
+    </div>
+    <div class="btn-row" style="margin-top:10px;">
+      <button class="btn btn-ghost" id="aboutTourBtn">🎓 Справка</button>
+      <button class="btn btn-primary" id="aboutCloseBtn">Хорошо</button>
+    </div>
+  </div>
+</div>
+<div class="modal" id="confirmModal">
+  <div class="confirm-dialog">
+    <h3 id="confirmTitle">Подтвердите</h3>
+    <p id="confirmText">Вы уверены?</p>
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="confirmCancelBtn">Отмена</button>
+      <button class="btn btn-danger" id="confirmOkBtn">Да</button>
+    </div>
+  </div>
+</div>
+<script>
+'use strict';
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const $$ = (sel, ctx = document) => ctx.querySelectorAll(sel);
+  const escapeHTML = (s) => String(s || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const debounce = (fn, ms=150) => { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); }; };
+
+  const rafBatcher = () => {
+    const q = new Set(); let s = false;
+    return (fn) => { q.add(fn); if (!s) { s = true; requestAnimationFrame(() => { s = false; const fns = [...q]; q.clear(); fns.forEach(f => f()); }); } };
+  };
+  const schedule = rafBatcher();
+
+  // PHYSICAL HAPTIC VIBRATION FEEDBACK
+  const vibrate = (ms) => { if (typeof navigator !== 'undefined' && navigator.vibrate) { try { navigator.vibrate(ms); } catch(_) {} } };
+
+  // LOCAL STORAGE & SECURE ANDROID STORAGE
+  const safeStorage = {
+    get(k) {
+      if (k === 'PVZ_SCHEDULE_DATA' && window.AndroidApp && typeof window.AndroidApp.loadData === 'function') {
+        try {
+          const appData = window.AndroidApp.loadData();
+          if (appData) return appData;
+        } catch(err) {
+          console.error("AndroidApp loadData error:", err);
+        }
+      }
+      try { return localStorage.getItem(k); } catch(_) { return null; }
+    },
+    set(k, v) {
+      if (k === 'PVZ_SCHEDULE_DATA' && window.AndroidApp && typeof window.AndroidApp.saveData === 'function') {
+        try {
+          window.AndroidApp.saveData(v);
+        } catch(err) {
+          console.error("AndroidApp saveData error:", err);
+        }
+      }
+      try { localStorage.setItem(k, v); } catch(_) { toast('⚠️ Ошибка локальной записи'); }
+    },
+    remove(k) {
+      if (k === 'PVZ_SCHEDULE_DATA' && window.AndroidApp && typeof window.AndroidApp.saveData === 'function') {
+        try {
+          window.AndroidApp.saveData("");
+        } catch(_) {}
+      }
+      try { localStorage.removeItem(k); } catch(_) {}
+    }
+  };
+
+  const DEFAULT_TEMPLATES = [
+    { id: 'full', name: 'Полная', icon: '☀️', defaultStart: '09:00', defaultEnd: '21:00', color: '#ffdb4d', hrs: 12 },
+    { id: 'morning', name: 'Утро', icon: '🌅', defaultStart: '09:00', defaultEnd: '15:00', color: '#34d399', hrs: 6 },
+    { id: 'evening', name: 'Вечер', icon: '🌆', defaultStart: '15:00', defaultEnd: '21:00', color: '#60a5fa', hrs: 6 }
+  ];
+  const TEMPLATES_MAP = Object.fromEntries(DEFAULT_TEMPLATES.map(t => [t.id, t]));
+
+  const INITIAL_DATA = {
+    employees: [
+      { id: 'e1', name: 'Роман', color: '#ffdb4d', rate: 150, rateType: 'hour' },
+      { id: 'e2', name: 'Анна', color: '#34d399', rate: 2000, rateType: 'day' }
+    ],
+    shifts: {},
+    personalNotes: [],
+    settings: { theme: 'dark', currentEmpFilter: 'all' }
+  };
+
+  let DATA;
+  try {
+    DATA = JSON.parse(safeStorage.get('PVZ_SCHEDULE_DATA')) || INITIAL_DATA;
+  } catch(_) { DATA = INITIAL_DATA; }
+  if (!DATA.employees?.length) DATA.employees = [...INITIAL_DATA.employees];
+  if (!DATA.shifts || typeof DATA.shifts !== 'object') DATA.shifts = {};
+  if (!Array.isArray(DATA.personalNotes)) DATA.personalNotes = [];
+  if (!DATA.settings) DATA.settings = { ...INITIAL_DATA.settings };
+
+  let empMap = new Map(DATA.employees.map(e => [e.id, e]));
+  const getEmp = (id) => empMap.get(id);
+
+  let statsCache = null;
+  function rebuildStatsCache() {
+    statsCache = new Map();
+    for (const k in DATA.shifts) {
+      const arr = DATA.shifts[k] || [];
+      const [y, m] = k.split('-');
+      const ym = `${y}-${parseInt(m, 10) - 1}`;
+      for (const s of arr) {
+        const key = `${s.empId}|${ym}`;
+        let stat = statsCache.get(key);
+        if (!stat) { stat = { days: 0, hours: 0 }; statsCache.set(key, stat); }
+        stat.days++;
+        stat.hours += (TEMPLATES_MAP[s.type]?.hrs || 12);
+      }
+    }
+  }
+  function getEmpMonthStats(empId, y, m) {
+    if (!statsCache) rebuildStatsCache();
+    return statsCache.get(`${empId}|${y}-${m}`) || { days: 0, hours: 0 };
+  }
+
+  const saveDelay = debounce(() => {
+    try { safeStorage.set('PVZ_SCHEDULE_DATA', JSON.stringify(DATA)); } catch(_) {}
+  }, 100);
+  function saveData() { statsCache = null; saveDelay(); }
+
+  // DATE HELPERS
+  let currentDate = new Date();
+  const dayKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const parseKey = (k) => { const p = k.split('-'); return new Date(+p[0], +p[1]-1, +p[2]); };
+
+  // TOAST MSG
+  let toastT = null;
+  function toast(msg) {
+    const t = $('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  // THEME CONTROL
+  function applyTheme(th) {
+    DATA.settings.theme = th; saveData();
+    document.documentElement.setAttribute('data-theme', th);
+  }
+
+  // CONFIRM MODAL
+  let confirmResolver = null;
+  function customConfirm(title, text) {
+    return new Promise(res => {
+      $('confirmTitle').textContent = title; $('confirmText').textContent = text;
+      $('confirmModal').classList.add('show'); confirmResolver = res;
+    });
+  }
+  $('confirmOkBtn').addEventListener('click', () => { $('confirmModal').classList.remove('show'); confirmResolver?.(true); });
+  $('confirmCancelBtn').addEventListener('click', () => { $('confirmModal').classList.remove('show'); confirmResolver?.(false); });
+
+  // TACTILE RIPPLE FACTORY
+  function attachRipple(el) {
+    el.style.position = 'relative';
+    el.style.overflow = 'hidden';
+    el.addEventListener('pointerdown', (e) => {
+      const rect = el.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      let container = el.querySelector('.ripple-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.className = 'ripple-container';
+        el.appendChild(container);
+      }
+      const ring = document.createElement('div');
+      ring.className = 'ripple-ring';
+      ring.style.left = `${x}px`;
+      ring.style.top = `${y}px`;
+      const size = Math.max(rect.width, rect.height) * 2;
+      ring.style.width = `${size}px`;
+      ring.style.height = `${size}px`;
+      container.appendChild(ring);
+      setTimeout(() => ring.remove(), 500);
+    });
+  }
+
+  // CLOSE ACTIONS
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('modal')) {
+      e.target.classList.remove('show');
+      if (e.target.id === 'confirmModal') confirmResolver?.(false);
+      if (e.target.id === 'dayModal' || e.target.id === 'fillModal') { selectedDates = []; renderCalendarSelectionOnly(); }
+    }
+  });
+
+  // NAVIGATION VIEW SWITCHING & VIEW CHANGER
+  const views = { schedule: $('viewSchedule'), notes: $('viewNotes'), settings: $('viewSettings') };
+  function switchView(v) {
+    if (!views[v]) return;
+    $$('.bottom-nav .nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+    for (const key in views) views[key].hidden = key !== v;
+    if (v === 'notes') renderNotes();
+    if (v === 'settings') renderSettings();
+  }
+  document.querySelector('.bottom-nav').addEventListener('click', (e) => {
+    const btn = e.target.closest('.nav-btn'); if (!btn) return;
+    vibrate(12);
+    if (btn.id === 'aboutNavBtn') { $('aboutModal').classList.add('show'); return; }
+    const v = btn.dataset.view; if (!v) return;
+    switchView(v);
+  });
+
+  // EMPLOYEE SELECTION BAR
+  function renderEmpBar() {
+    const bar = $('empBar');
+    const f = DATA.settings.currentEmpFilter;
+    let html = `<button class="emp-chip all${f==='all'?' active':''}" data-emp="all">
+      <div class="avatar">👥</div><span>Все графики</span></button>`;
+    for (const e of DATA.employees) {
+      const sName = escapeHTML(e.name);
+      html += `<button class="emp-chip${f===e.id?' active':''}" data-emp="${e.id}">
+        <div class="avatar" style="background:${e.color}">${sName.charAt(0).toUpperCase()}</div><span>${sName}</span></button>`;
+    }
+    bar.innerHTML = html;
+    $$('.emp-chip', bar).forEach(attachRipple);
+  }
+  $('empBar').addEventListener('click', (e) => {
+    const chip = e.target.closest('.emp-chip'); if (!chip) return;
+    vibrate(15);
+    DATA.settings.currentEmpFilter = chip.dataset.emp; saveData();
+    renderEmpBar(); renderCalendar(); renderStats(); renderSalary();
+  });
+
+  // CALENDAR ENGINE
+  let selectedDates = [];
+  const selectedSet = new Set();
+  let isDragging = false;
+  let lastDraggedKey = null;
+  let cellByKey = new Map();
+
+  const RU_MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  const RU_MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+  const RU_DAYS = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
+
+  function renderCalendar() {
+    const grid = $('daysGrid'); const y = currentDate.getFullYear(); const m = currentDate.getMonth();
+    $('monthTitle').textContent = `${RU_MONTHS[m]} ${y}`;
+    const first = new Date(y, m, 1); let startDow = first.getDay() - 1; if (startDow < 0) startDow = 6;
+    const total = new Date(y, m + 1, 0).getDate(); const prevTotal = new Date(y, m, 0).getDate();
+    const fragment = document.createDocumentFragment(); cellByKey.clear();
+
+    for (let i = startDow - 1; i >= 0; i--) { fragment.appendChild(createCell(new Date(y, m - 1, prevTotal - i), true)); }
+    for (let i = 1; i <= total; i++) { fragment.appendChild(createCell(new Date(y, m, i), false)); }
+    const occupied = startDow + total; const rem = occupied % 7;
+    if (rem > 0) { for (let i = 1; i <= (7 - rem); i++) { fragment.appendChild(createCell(new Date(y, m + 1, i), true)); } }
+    grid.replaceChildren(fragment);
+
+    $('legendGrid').innerHTML = DEFAULT_TEMPLATES.map(t =>
+      `<div class="legend-item"><div class="legend-dot" style="background:${t.color}"></div><span>${escapeHTML(t.name)} (${t.hrs}ч)</span></div>`
+    ).join('');
+  }
+
+  function createCell(date, isOther) {
+    const cell = document.createElement('div'); cell.className = 'day';
+    const k = dayKey(date); cell.dataset.date = k; cell.tabIndex = isOther ? -1 : 0;
+    if (isOther) cell.classList.add('other-month');
+    const dow = date.getDay(); if (dow === 0 || dow === 6) cell.classList.add('weekend');
+    const now = new Date(); if (date.getDate() === now.getDate() && date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()) cell.classList.add('today');
+
+    let inner = `<div class="day-circle"><span class="day-num">${date.getDate()}</span>`;
+    let shifts = DATA.shifts[k] || [];
+    if (DATA.settings.currentEmpFilter !== 'all') shifts = shifts.filter(s => s.empId === DATA.settings.currentEmpFilter);
+
+    if (shifts.length) {
+      cell.classList.add('has-shift');
+      if (shifts.length === 1) {
+        const emp = getEmp(shifts[0].empId); const t = TEMPLATES_MAP[shifts[0].type] || DEFAULT_TEMPLATES[0];
+        const color = emp ? emp.color : t.color;
+        cell.style.setProperty('--shift-color', color);
+        cell.style.setProperty('--shift-color-glow', color + '45');
+        inner += `<span class="day-icon">${t.icon}</span>`;
+      } else {
+        cell.classList.add('multi');
+        const cg = shifts.map(s => getEmp(s.empId)?.color || '#ffdb4d').join(', ');
+        cell.style.setProperty('--shift-gradient', `linear-gradient(135deg, ${cg})`);
+        inner += `<span class="day-count">${shifts.length}</span>`;
+      }
+    }
+    inner += `</div>`; cell.innerHTML = inner;
+    if (selectedSet.has(k)) cell.classList.add('drag-selected');
+    cellByKey.set(k, cell);
+    return cell;
+  }
+
+  function renderCalendarSelectionOnly() {
+    cellByKey.forEach((c, k) => c.classList.toggle('drag-selected', selectedSet.has(k)));
+  }
+
+  // DRAGGING AND SELECT INTERFACES
+  (() => {
+    const grid = $('daysGrid');
+    const getCell = (x, y) => { const el = document.elementFromPoint(x, y); return el ? el.closest('.day') : null; };
+    
+    let dragStartCell = null;
+    let dragStartX = 0;
+    let dragStartY = 0;
+
+    const onStart = (c, x, y) => {
+      if (!c?.dataset.date) return;
+      dragStartCell = c;
+      dragStartX = x;
+      dragStartY = y;
+      isDragging = false;
+      selectedDates = [c.dataset.date];
+      selectedSet.clear();
+      selectedSet.add(c.dataset.date);
+      lastDraggedKey = c.dataset.date;
+      cellByKey.forEach((el, k) => el.classList.toggle('drag-selected', k === c.dataset.date));
+    };
+
+    const onMove = (c, x, y) => {
+      if (!dragStartCell) return;
+      const k = c?.dataset.date;
+      if (!k) return;
+
+      if (!isDragging) {
+        const dist = Math.hypot(x - dragStartX, y - dragStartY);
+        if (dist > 12 || k !== dragStartCell.dataset.date) {
+          isDragging = true;
+          vibrate(10);
+        }
+      }
+
+      if (isDragging) {
+        if (k !== lastDraggedKey) {
+          lastDraggedKey = k;
+          if (!selectedSet.has(k)) {
+            selectedSet.add(k);
+            selectedDates.push(k);
+            c.classList.add('drag-selected');
+            vibrate(6);
+          }
+        }
+      }
+    };
+
+    const onEnd = () => {
+      if (!dragStartCell) return;
+      const wasDragging = isDragging;
+      const count = selectedDates.length;
+
+      dragStartCell = null;
+      setTimeout(() => { isDragging = false; }, 80);
+
+      if (wasDragging && count > 1) {
+        vibrate([15, 30]);
+        openFillModal();
+      }
+    };
+
+    grid.addEventListener('click', (e) => {
+      const c = e.target.closest('.day');
+      if (!c || !c.dataset.date) return;
+      if (isDragging) return;
+      vibrate(10);
+      selectedDates = [c.dataset.date];
+      selectedSet.clear();
+      selectedSet.add(c.dataset.date);
+      openDayModal(parseKey(c.dataset.date));
+    });
+
+    grid.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return;
+      const c = e.target.closest('.day');
+      if (c) {
+        onStart(c, e.clientX, e.clientY);
+      }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (dragStartCell) {
+        const c = getCell(e.clientX, e.clientY);
+        if (c) onMove(c, e.clientX, e.clientY);
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (dragStartCell) onEnd();
+    });
+
+    let touchActive = false;
+    grid.addEventListener('touchstart', (e) => {
+      const c = e.target.closest('.day');
+      if (c) {
+        touchActive = true;
+        const t = e.touches[0];
+        onStart(c, t.clientX, t.clientY);
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+      if (!dragStartCell) return;
+      const t = e.touches[0];
+      if (!t) return;
+      const c = getCell(t.clientX, t.clientY);
+      if (c) {
+        onMove(c, t.clientX, t.clientY);
+        if (isDragging && e.cancelable) {
+          e.preventDefault();
+        }
+      }
+    }, { passive: false });
+
+    window.addEventListener('touchend', () => {
+      touchActive = false;
+      if (dragStartCell) onEnd();
+    });
+
+    window.addEventListener('touchcancel', () => {
+      touchActive = false;
+      dragStartCell = null;
+      isDragging = false;
+      selectedDates = [];
+      selectedSet.clear();
+      renderCalendarSelectionOnly();
+    });
+  })();
+
+  // DETAILED DAY MODAL
+  let activeModalDate = null;
+  let activeModalShiftType = 'full';
+
+  function openDayModal(date) {
+    activeModalDate = date; selectedDates = []; selectedSet.clear();
+    $('dayModalTitle').textContent = `${date.getDate()} ${RU_MONTHS_GEN[date.getMonth()]} ${date.getFullYear()}`;
+    $('dayModalDayOfWeek').textContent = RU_DAYS[date.getDay()];
+
+    const select = $('modalEmpSelect');
+    select.innerHTML = DATA.employees.map(e => `<option value="${e.id}">${escapeHTML(e.name)}</option>`).join('');
+    if (DATA.settings.currentEmpFilter !== 'all') select.value = DATA.settings.currentEmpFilter;
+    else if (DATA.employees.length) select.value = DATA.employees[0].id;
+
+    activeModalShiftType = 'full';
+    renderDayModalShifts(); renderModalShiftOptions();
+    $('dayModal').classList.add('show');
+    vibrate(10);
+  }
+
+  function renderDayModalShifts() {
+    const list = $('dayModalShifts'); const k = dayKey(activeModalDate); const shifts = DATA.shifts[k] || [];
+    if (!shifts.length) { list.innerHTML = `<div style="text-align:center;font-size:11px;color:var(--text-dim);padding:8px;">Смен пока нет</div>`; return; }
+    list.innerHTML = shifts.map((s, idx) => {
+      const e = getEmp(s.empId); if (!e) return '';
+      const t = TEMPLATES_MAP[s.type] || DEFAULT_TEMPLATES[0];
+      return `<div class="day-shift-card" style="border-color:${e.color}">
+        <div class="avatar" style="background:${e.color}">${escapeHTML(e.name.charAt(0).toUpperCase())}</div>
+        <div class="ds-info">
+          <div class="ds-name">${escapeHTML(e.name)}</div>
+          <div class="ds-meta">${escapeHTML(t.name)} (${escapeHTML(s.start)} – ${escapeHTML(s.end)})</div>
+        </div>
+        <button class="ds-del" data-idx="${idx}">✕</button>
+      </div>`;
+    }).join('');
+  }
+  $('dayModalShifts').addEventListener('click', (e) => {
+    const btn = e.target.closest('.ds-del'); if (!btn) return;
+    vibrate(15);
+    const idx = +btn.dataset.idx; const k = dayKey(activeModalDate); const s = DATA.shifts[k];
+    if (s) { s.splice(idx, 1); if (!s.length) delete DATA.shifts[k]; saveData(); renderDayModalShifts(); schedule(() => { renderCalendar(); renderStats(); renderSalary(); }); }
+  });
+
+  function renderModalShiftOptions() {
+    $('modalShiftOpts').innerHTML = DEFAULT_TEMPLATES.map(t =>
+      `<button type="button" class="shift-opt${activeModalShiftType === t.id ? ' selected' : ''}" data-type="${t.id}">
+        <div class="color-bar" style="background:${t.color}"></div>
+        <span class="ic">${t.icon}</span><span class="lbl">${escapeHTML(t.name)}</span><span class="hrs">${t.hrs} ч</span>
+      </button>`
+    ).join('');
+    const cur = TEMPLATES_MAP[activeModalShiftType];
+    if (cur) { $('modalStartTime').value = cur.defaultStart; $('modalEndTime').value = cur.defaultEnd; }
+  }
+  $('modalShiftOpts').addEventListener('click', (e) => {
+    const opt = e.target.closest('.shift-opt'); if (!opt) return;
+    vibrate(10); activeModalShiftType = opt.dataset.type; renderModalShiftOptions();
+  });
+
+  $('modalSaveShiftBtn').addEventListener('click', () => {
+    const empId = $('modalEmpSelect').value; if (!empId) { toast('Добавьте сначала сотрудника'); return; }
+    const start = $('modalStartTime').value; const end = $('modalEndTime').value; const k = dayKey(activeModalDate);
+    if (!DATA.shifts[k]) DATA.shifts[k] = [];
+    DATA.shifts[k] = DATA.shifts[k].filter(s => s.empId !== empId);
+    DATA.shifts[k].push({ empId, type: activeModalShiftType, start, end });
+    vibrate([20, 40]); saveData(); $('dayModal').classList.remove('show');
+    schedule(() => { renderCalendar(); renderStats(); renderSalary(); });
+    toast('Смена сохранена ✨');
+  });
+  $('modalCloseBtn').addEventListener('click', () => { $('dayModal').classList.remove('show'); selectedDates = []; selectedSet.clear(); renderCalendarSelectionOnly(); });
+
+  // RAPID GRAPH FILL MODAL
+  let activeFillShiftType = 'full';
+  function openFillModal() {
+    selectedDates.sort(); $('fillModalCount').textContent = selectedDates.length;
+    $('fillModalDatesList').textContent = 'Даты: ' + selectedDates.map(k => k.split('-')[2]).join(', ');
+    activeFillShiftType = 'full'; renderFillShiftOptions();
+    $('fillModal').classList.add('show');
+    vibrate(10);
+  }
+  function renderFillShiftOptions() {
+    $('fillShiftOpts').innerHTML = DEFAULT_TEMPLATES.map(t =>
+      `<button type="button" class="shift-opt${activeFillShiftType===t.id?' selected':''}" data-type="${t.id}">
+        <div class="color-bar" style="background:${t.color}"></div>
+        <span class="ic">${t.icon}</span><span class="lbl">${escapeHTML(t.name)}</span>
+      </button>`
+    ).join('');
+  }
+  $('fillShiftOpts').addEventListener('click', (e) => {
+    const opt = e.target.closest('.shift-opt'); if (opt) { vibrate(10); activeFillShiftType = opt.dataset.type; renderFillShiftOptions(); }
+  });
+  $('fillCancelBtn').addEventListener('click', () => { $('fillModal').classList.remove('show'); selectedDates = []; selectedSet.clear(); renderCalendarSelectionOnly(); });
+  $('fillConfirmBtn').addEventListener('click', () => {
+    let empId = DATA.settings.currentEmpFilter; if (empId === 'all') empId = DATA.employees[0]?.id;
+    if (!empId) { toast('Добавьте сотрудника'); return; }
+    const pat = $('fillPattern').value; const t = TEMPLATES_MAP[activeFillShiftType]; let count = 0;
+
+    for (let i = 0; i < selectedDates.length; i++) {
+      const k = selectedDates[i]; const date = parseKey(k); const dow = date.getDay(); let fill = true;
+      if (pat === '2/2') fill = (i % 4 < 2);
+      else if (pat === '3/3') fill = (i % 6 < 3);
+      else if (pat === '5/2') fill = (dow !== 0 && dow !== 6);
+      else if (pat === '1/1') fill = (i % 2 === 0);
+
+      if (fill) {
+        if (!DATA.shifts[k]) DATA.shifts[k] = [];
+        DATA.shifts[k] = DATA.shifts[k].filter(s => s.empId !== empId);
+        DATA.shifts[k].push({ empId, type: activeFillShiftType, start: t.defaultStart, end: t.defaultEnd });
+        count++;
+      }
+    }
+    vibrate([20, 50]); saveData(); $('fillModal').classList.remove('show'); selectedDates = []; selectedSet.clear();
+    schedule(() => { renderCalendar(); renderStats(); renderSalary(); });
+    toast(`Добавлено смен: ${count}`);
+  });
+
+  // SVG CHART ANALYTICS GENERATION (Pure Inline SVG)
+  function renderSalaryChart(data, totalSum) {
+    const container = $('salaryChartContainer');
+    if (!container) return;
+    if (totalSum === 0 || !data.length) { container.innerHTML = ''; return; }
+
+    let svg = `<svg viewBox="0 0 100 100" class="salary-svg" style="max-width:110px; margin:0 auto; display:block;">`;
+    let accum = 0;
+    for (const d of data) {
+      if (d.earned === 0) continue;
+      const ratio = d.earned / totalSum;
+      const circum = 2 * Math.PI * 34;
+      const strokeDash = ratio * circum;
+      const strokeOffset = circum - (accum / totalSum) * circum;
+      svg += `<circle cx="50" cy="50" r="34" fill="none" stroke="${d.color}" stroke-width="12" stroke-dasharray="${strokeDash} ${circum}" stroke-dashoffset="${strokeOffset}" transform="rotate(-90 50 50)" style="transition: stroke-dashoffset 0.4s ease-out; stroke-linecap:round;"></circle>`;
+      accum += d.earned;
+    }
+    svg += `<circle cx="50" cy="50" r="23" fill="var(--bg-2)"></circle>`;
+    svg += `</svg>`;
+    container.innerHTML = svg;
+  }
+
+  // STATISTICS & CHARTS COMPUTING
+  function renderStats() {
+    const box = $('statsContainer'); const f = DATA.settings.currentEmpFilter;
+    const list = f === 'all' ? DATA.employees : DATA.employees.filter(e => e.id === f);
+    const y = currentDate.getFullYear(); const m = currentDate.getMonth();
+
+    box.innerHTML = list.map(e => {
+      const sName = escapeHTML(e.name); const st = getEmpMonthStats(e.id, y, m);
+      return `<div class="stat-row">
+        <div class="stat-emp">
+          <div class="avatar" style="background:${e.color}">${sName.charAt(0).toUpperCase()}</div>
+          <div><div class="name">${sName}</div><div class="role-small">${e.rateType==='day'?'По дням':'Почасовая'}</div></div>
+        </div>
+        <div class="stat-vals">
+          <div class="stat-val"><div class="v">${st.days}</div><div class="l">дней</div></div>
+          <div class="stat-val"><div class="v">${st.hours}</div><div class="l">часов</div></div>
+        </div>
+      </div>`;
+    }).join('') || `<div style="text-align:center;font-size:11px;color:var(--text-dim);padding:4px;">Нет данных</div>`;
+  }
+
+  function renderSalary() {
+    const box = $('salaryContainer'); const f = DATA.settings.currentEmpFilter;
+    const list = f === 'all' ? DATA.employees : DATA.employees.filter(e => e.id === f);
+    const y = currentDate.getFullYear(); const m = currentDate.getMonth();
+    let total = 0; const chartData = [];
+
+    let html = list.map(e => {
+      const st = getEmpMonthStats(e.id, y, m);
+      const earned = e.rateType === 'day' ? (st.days * (e.rate || 0)) : (st.hours * (e.rate || 0));
+      total += earned; chartData.push({ color: e.color, earned });
+      const sName = escapeHTML(e.name);
+      return `<div class="salary-row">
+        <div class="salary-info">
+          <div class="avatar" style="background:${e.color}">${sName.charAt(0).toUpperCase()}</div>
+          <div class="info"><div class="nm">${sName}</div><div class="rt">${e.rateType==='day'?'Оплата за смену':'Ориент. в час'}: ${e.rate || 0} ₽</div></div>
+        </div>
+        <div>
+          <div class="sum ${earned === 0 ? 'zero' : ''}">${earned.toLocaleString('ru-RU')} ₽</div>
+          <div class="breakdown">${st.hours}ч / ${st.days}дн</div>
+        </div>
+      </div>`;
+    }).join('') || `<div style="text-align:center;font-size:11px;color:var(--text-dim);padding:4px;">Нет данных</div>`;
+
+    box.innerHTML = html;
+    $('totalSalarySummary').textContent = `Итого: ${total.toLocaleString('ru-RU')} ₽`;
+    renderSalaryChart(chartData, total);
+  }
+
+  // PERSONAL NOTES PANEL
+  function renderNotes() {
+    const box = $('notesList'); const s = $('notesSearchInput').value.trim().toLowerCase();
+    let l = DATA.personalNotes;
+    if (s) l = l.filter(n => n.title?.toLowerCase().includes(s) || n.body?.toLowerCase().includes(s));
+    if (!l.length) { box.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-dim);font-size:13px;">📝 ${s ? 'Ничего не найдено':'Заметок нет'}</div>`; return; }
+
+    box.innerHTML = l.map((n, i) =>
+      `<div class="note-item" data-id="${escapeHTML(n.id)}" tabindex="0">
+        <div class="note-item-top">
+          <span class="note-item-title">${escapeHTML(n.title) || 'Без имени'}</span>
+          <span class="note-item-date">${escapeHTML(n.date) || ''}</span>
+        </div>
+        <div class="note-item-txt">${escapeHTML(n.body) || ''}</div>
+      </div>`
+    ).reverse().join('');
+  }
+  $('notesList').addEventListener('click', (e) => {
+    const item = e.target.closest('.note-item'); if (!item) return;
+    const n = DATA.personalNotes.find(x => x.id === item.dataset.id); if (n) openNoteEditModal(n);
+  });
+  $('addNoteFabBtn').addEventListener('click', () => openNoteEditModal(null));
+  $('noteModalCancelBtn').addEventListener('click', () => $('noteEditModal').classList.remove('show'));
+
+  function openNoteEditModal(n) {
+    if (n) {
+      $('noteModalTitle').textContent = 'Редактор заметки'; $('noteModalId').value = n.id;
+      $('noteModalHeader').value = n.title || ''; $('noteModalBody').value = n.body || '';
+      $('noteModalDeleteBtn').style.display = 'block';
+    } else {
+      $('noteModalTitle').textContent = 'Добавить заметку'; $('noteModalId').value = '';
+      $('noteModalHeader').value = ''; $('noteModalBody').value = '';
+      $('noteModalDeleteBtn').style.display = 'none';
+    }
+    $('noteEditModal').classList.add('show');
+    setTimeout(() => $('noteModalHeader').focus(), 150);
+  }
+
+  $('noteModalSaveBtn').addEventListener('click', () => {
+    const id = $('noteModalId').value; const t = $('noteModalHeader').value.trim(); const b = $('noteModalBody').value.trim();
+    if (!t && !b) { toast('Заметка пуста'); return; }
+    const dt = new Date().toLocaleDateString('ru-RU', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+
+    if (id) {
+      const n = DATA.personalNotes.find(x => x.id === id);
+      if (n) { n.title = t; n.body = b; n.date = dt; }
+    } else {
+      DATA.personalNotes.push({ id:'note_'+Date.now()+'_'+Math.random().toString(36).slice(2,5), title: t, body: b, date: dt });
+    }
+    vibrate(15); saveData(); $('noteEditModal').classList.remove('show'); renderNotes(); toast('✓ Сохранено');
+  });
+
+  $('noteModalDeleteBtn').addEventListener('click', async () => {
+    const id = $('noteModalId').value; if (!id) return;
+    const ok = await customConfirm('Удаление', 'Удалить эту заметку безвозвратно?'); if (!ok) return;
+    DATA.personalNotes = DATA.personalNotes.filter(x => x.id !== id);
+    vibrate(20); saveData(); $('noteEditModal').classList.remove('show'); renderNotes(); toast('Удалено');
+  });
+  $('notesSearchInput').addEventListener('input', debounce(renderNotes, 100));
+
+  // APP SETTINGS ENGINE
+  const SWITCH_COLORS = ['#ffdb4d', '#34d399', '#60a5fa', '#f87171', '#c084fc', '#f472b6', '#fb923c', '#2dd4bf'];
+  let currentSelectColor = SWITCH_COLORS[0];
+
+  function renderSettings() {
+    $('settingsEmpList').innerHTML = DATA.employees.map(e =>
+      `<div class="emp-list-item" data-id="${e.id}">
+        <div class="avatar" style="background:${e.color}">${escapeHTML(e.name.charAt(0).toUpperCase())}</div>
+        <div class="info"><div class="name">${escapeHTML(e.name)}</div><div class="role">${e.rate || 0} ₽ (${e.rateType==='day'?'за смену':'в час'})</div></div>
+        <button class="icon-action edit-btn">✏️</button>
+      </div>`
+    ).join('');
+    renderThemeSettings();
+  }
+  $('settingsEmpList').addEventListener('click', (e) => {
+    const item = e.target.closest('.emp-list-item'); if (!item) return;
+    if (e.target.closest('.edit-btn')) { const emp = getEmp(item.dataset.id); if (emp) openEmpModal(emp); }
+  });
+
+  function renderThemeSettings() {
+    const themes = [{id:'dark',name:'Тёмная неоновая'},{id:'light',name:'Светлая чистая'}];
+    $('themeGrid').innerHTML = themes.map(t =>
+      `<button class="theme-card${DATA.settings.theme===t.id?' active':''}" data-theme="${t.id}" type="button">
+        <div class="theme-preview" style="background:${t.id==='dark'?'#09090e':'#ffffff'}"></div>
+        <div class="theme-label"><div class="nm">${escapeHTML(t.name)}</div></div>
+      </button>`
+    ).join('');
+  }
+  $('themeGrid').addEventListener('click', (e) => {
+    const card = e.target.closest('.theme-card'); if (card) { vibrate(15); applyTheme(card.dataset.theme); renderThemeSettings(); }
+  });
+
+  function openEmpModal(emp = null) {
+    $('empModalColors').innerHTML = SWITCH_COLORS.map(c => {
+      const active = emp ? emp.color === c : c === SWITCH_COLORS[0];
+      return `<button class="color-swatch${active?' active':''}" data-color="${c}" style="background:${c}"></button>`;
+    }).join('');
+
+    const bHour = $('rateTypeHour'); const bDay = $('rateTypeDay'); const rateT = $('empModalRateType');
+    if (emp) {
+      $('empModalId').value = emp.id; $('empModalName').value = emp.name; $('empModalRate').value = emp.rate || '';
+      currentSelectColor = emp.color; rateT.value = emp.rateType || 'hour';
+      $('empModalDeleteBtn').style.display = 'block';
+    } else {
+      $('empModalId').value = ''; $('empModalName').value = ''; $('empModalRate').value = '';
+      currentSelectColor = SWITCH_COLORS[0]; rateT.value = 'hour';
+      $('empModalDeleteBtn').style.display = 'none';
+    }
+    if (rateT.value === 'day') { bHour.classList.remove('active'); bDay.classList.add('active'); }
+    else { bDay.classList.remove('active'); bHour.classList.add('active'); }
+    $('empModal').classList.add('show');
+    setTimeout(() => $('empModalName').focus(), 150);
+  }
+  $('empModalColors').addEventListener('click', (e) => {
+    const sw = e.target.closest('.color-swatch'); if (!sw) return;
+    vibrate(8); currentSelectColor = sw.dataset.color;
+    $$('#empModalColors .color-swatch').forEach(s => s.classList.toggle('active', s === sw));
+  });
+  $('rateTypeHour').addEventListener('click', () => { $('rateTypeDay').classList.remove('active'); $('rateTypeHour').classList.add('active'); $('empModalRateType').value = 'hour'; vibrate(8); });
+  $('rateTypeDay').addEventListener('click', () => { $('rateTypeHour').classList.remove('active'); $('rateTypeDay').classList.add('active'); $('empModalRateType').value = 'day'; vibrate(8); });
+
+  $('empModalSaveBtn').addEventListener('click', () => {
+    const id = $('empModalId').value; const nm = $('empModalName').value.trim(); const rate = parseFloat($('empModalRate').value) || 0; const rateType = $('empModalRateType').value;
+    if (!nm) { toast('Заполни имя'); return; }
+
+    if (id) {
+      const e = getEmp(id); if (e) { e.name = nm; e.color = currentSelectColor; e.rate = rate; e.rateType = rateType; }
+    } else {
+      DATA.employees.push({ id:'e_'+Date.now()+'_'+Math.random().toString(36).slice(2,5), name: nm, color: currentSelectColor, rate, rateType });
+    }
+    empMap = new Map(DATA.employees.map(e => [e.id, e])); vibrate([15, 30]); saveData();
+    $('empModal').classList.remove('show');
+    schedule(() => { renderEmpBar(); renderSettings(); renderCalendar(); renderStats(); renderSalary(); });
+    toast('Сотрудник сохранён');
+  });
+  $('empModalCancelBtn').addEventListener('click', () => $('empModal').classList.remove('show'));
+  $('addNewEmpBtn').addEventListener('click', () => openEmpModal(null));
+
+  $('empModalDeleteBtn').addEventListener('click', async () => {
+    const id = $('empModalId').value; if (!id) return;
+    const ok = await customConfirm('Удалить сотрудника?', 'Все его назначенные смены также удалятся безвозвратно.'); if (!ok) return;
+
+    DATA.employees = DATA.employees.filter(e => e.id !== id);
+    for (const k in DATA.shifts) { DATA.shifts[k] = DATA.shifts[k].filter(s => s.empId !== id); if (!DATA.shifts[k].length) delete DATA.shifts[k]; }
+    if (DATA.settings.currentEmpFilter === id) DATA.settings.currentEmpFilter = 'all';
+    empMap = new Map(DATA.employees.map(e => [e.id, e])); vibrate(20); saveData();
+    $('empModal').classList.remove('show');
+    schedule(() => { renderEmpBar(); renderSettings(); renderCalendar(); renderStats(); renderSalary(); });
+    toast('Сотрудник удалён');
+  });
+
+  // ABOUT PROGRAM INFO
+  $('aboutCloseBtn').addEventListener('click', () => $('aboutModal').classList.remove('show'));
+
+  // IMPORT AND EXPORTS OPERATIONS
+  async function copyToClipboard(text) {
+    if (navigator.clipboard?.writeText) { try { await navigator.clipboard.writeText(text); return true; } catch(_) {} }
+    try {
+      const ta = document.createElement('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;left:-9999px;opacity:0';
+      document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); document.body.removeChild(ta); return ok;
+    } catch(_) { return false; }
+  }
+
+  $('textExportBtn').addEventListener('click', async () => {
+    const currentM = $('monthTitle').textContent;
+    let s = `=========================\n📊 ОТЧЁТ: ПВЗ ГРАФИК (${currentM.toUpperCase()})\n=========================\n\n📅 Календарь по дням:\n`;
+    const sorted = Object.keys(DATA.shifts).sort(); let hasData = false;
+    for (const k of sorted) {
+      const d = parseKey(k);
+      if (d.getMonth() === currentDate.getMonth() && d.getFullYear() === currentDate.getFullYear()) {
+        hasData = true;
+        const shifts = DATA.shifts[k].map(s => {
+          const e = getEmp(s.empId); const t = TEMPLATES_MAP[s.type];
+          return `${e ? e.name : 'Удалён'} (${t ? t.name : 'Смена'}: ${s.start}-${s.end})`;
+        }).join(', ');
+        s += `• Число ${d.getDate()}: ${shifts}\n`;
+      }
+    }
+    if (!hasData) s += `(В этом месяце нет назначенных смен)\n`;
+    s += `\n💵 Статистика сотрудников:\n`;
+    const y = currentDate.getFullYear(); const m = currentDate.getMonth();
+    for (const e of DATA.employees) {
+      const st = getEmpMonthStats(e.id, y, m);
+      const earned = e.rateType === 'day' ? (st.days * (e.rate || 0)) : (st.hours * (e.rate || 0));
+      s += `• ${e.name}: ${st.days}дн / ${st.hours}ч → ${earned.toLocaleString('ru-RU')} ₽\n`;
+    }
+    const ok = await copyToClipboard(s); toast(ok ? '📋 Отчёт скопирован!' : '❌ Не удалось скопировать отчёт');
+  });
+
+  $('exportBtn').addEventListener('click', () => { vibrate(10); window.print(); });
+
+  $('exportJsonBtn').addEventListener('click', () => {
+    try {
+      const b = new Blob([JSON.stringify(DATA, null, 2)], { type: 'application/json' });
+      const lnk = document.createElement('a'); lnk.href = URL.createObjectURL(b); lnk.download = `pvz_backup_${dayKey(new Date())}.json`;
+      document.body.appendChild(lnk); lnk.click(); document.body.removeChild(lnk);
+      toast('💾 Файл резервной копии скачан');
+    } catch(_) { toast('Ошибка экспорта'); }
+  });
+
+  $('importBtn').addEventListener('click', () => {
+    const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.json';
+    inp.onchange = async (e) => {
+      const file = e.target.files[0]; if (!file) return;
+      const ok = await customConfirm('Импортировать резервную копию?', 'Все ваши текущие данные будут заменены.'); if (!ok) return;
+
+      const r = new FileReader();
+      r.onload = (evt) => {
+        try {
+          const parsed = JSON.parse(evt.target.result);
+          if (!parsed.employees || typeof parsed.shifts !== 'object') { toast('❌ Неверный формат бэкапа'); return; }
+          DATA = parsed; if (!Array.isArray(DATA.personalNotes)) DATA.personalNotes = [];
+          empMap = new Map(DATA.employees.map(e => [e.id, e])); saveData();
+          applyTheme(DATA.settings.theme || 'dark');
+          renderEmpBar(); renderCalendar(); renderStats(); renderSalary(); renderSettings();
+          toast('✓ Данные импортированы');
+        } catch(_) { toast('❌ Ошибка чтения файла'); }
+      };
+      r.readAsText(file);
+    };
+    inp.click();
+  });
+
+  $('clearAllDataBtn').addEventListener('click', async () => {
+    const ok = await customConfirm('Внимание! Сбросить все данные?', 'Все сотрудники, смены, настройки и личные заметки будут окончательно очищены.');
+    if (!ok) return;
+    safeStorage.remove('PVZ_SCHEDULE_DATA'); DATA = JSON.parse(JSON.stringify(INITIAL_DATA));
+    empMap = new Map(DATA.employees.map(e => [e.id, e])); statsCache = null; applyTheme('dark');
+    renderEmpBar(); renderCalendar(); renderStats(); renderSalary(); renderSettings();
+    toast('✓ Все данные сброшены');
+  });
+
+  // MONTH NAVIGATION INTERFACE
+  $('prevMonthBtn').addEventListener('click', () => { currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1); vibrate(10); schedule(() => { renderCalendar(); renderStats(); renderSalary(); }); });
+  $('nextMonthBtn').addEventListener('click', () => { currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1); vibrate(10); schedule(() => { renderCalendar(); renderStats(); renderSalary(); }); });
+  $('todayBtn').addEventListener('click', () => { currentDate = new Date(); vibrate(15); schedule(() => { renderCalendar(); renderStats(); renderSalary(); }); });
+
+  (() => {
+    let sx = 0, sy = 0, t0 = 0, track = false;
+    const cal = $('calendar');
+    cal.addEventListener('touchstart', (e) => { if (e.touches.length === 1) { sx=e.touches[0].clientX; sy=e.touches[0].clientY; t0=Date.now(); track=true; } }, { passive: true });
+    cal.addEventListener('touchend', (e) => {
+      if (!track || isDragging) return; track = false;
+      const t = e.changedTouches[0]; const dx = t.clientX - sx; const dy = t.clientY - sy;
+      if (Date.now() - t0 > 450) return;
+      if (Math.abs(dx) > 65 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+        if (dx > 0) $('prevMonthBtn').click(); else $('nextMonthBtn').click();
+      }
+    });
+  })();
+
+  // INTERACTIVE WALKTHROUGH TOUR ENGINE
+  let currentStepIndex = 0;
+  const tourSteps = [
+    {
+      title: "Добро пожаловать в ПВЗ График! 👋",
+      body: "Это умный помощник планирования смен, ведения заметок и автоматического подсчёта заработной платы вашей команды. Пройдем по всем пунктам!",
+      action() { switchView('schedule'); }
+    },
+    {
+      targetSelector: "#calendar",
+      title: "Интерактивный календарь 📅",
+      body: "Главный блок. Нажмите на любой день для изменения смен менеджеров. Либо <strong>проведите пальцем (drag-выделение)</strong> по диапазону дат для быстрого массового заполнения за пару нажатий!",
+      action() { switchView('schedule'); }
+    },
+    {
+      targetSelector: "#empBar",
+      title: "Фильтр по сотрудникам 👥",
+      body: "Переключайтесь между сотрудниками в один тап. Клик по аватару отобразит только его смены и перестроит статистику. <strong>Все графики</strong> вернёт общую картину.",
+      action() { switchView('schedule'); }
+    },
+    {
+      targetSelector: "#legendGrid",
+      title: "Типы смен и шаблоны ☀️",
+      body: "Шаблоны работы: <strong>Полная смена (12ч)</strong>, <strong>Утренний выход (6ч)</strong> или <strong>Вечерний выход (6ч)</strong>. Смены накладываются друг на друга в одной ячейке в виде цветных кругов.",
+      action() { switchView('schedule'); }
+    },
+    {
+      targetSelector: "#salaryChartSection",
+      title: "Аналитика & Зарплатная диаграмма 📊",
+      body: "Сумма отработанных дней, часов и зарплата считаются в реальном времени по персональным тарифам. Справа автоматически отрисовывается цветная SVG круговая диаграмма распределения затрат фонда.",
+      action() { switchView('schedule'); }
+    },
+    {
+      targetSelector: ".topbar-actions",
+      title: "Быстрые текстовые отчеты & PDF 📄",
+      body: "Иконка 📄 мгновенно копирует красивый структурированный текстовый отчёт за текущий месяц для вставки в рабочий чат (Telegram/WhatsApp). Иконка 📤 подготавливает лист к печати или сохранению в PDF.",
+      action() { switchView('schedule'); }
+    },
+    {
+      targetSelector: "#viewNotes",
+      title: "Раздел 'Личные заметки' 📝",
+      body: "Мы перешли в меню личных заметок. Они используются сотрудниками ПВЗ для фиксации инвентаризаций, контактов техподдержки, спорных вопросов, записей о посылкам.",
+      action() { switchView('notes'); }
+    },
+    {
+      targetSelector: "#addNoteFabBtn",
+      title: "Кнопка создания новой заметки ➕",
+      body: "Используйте эту плавающую красную круглую кнопку для быстрого сохранения любой информации. Всё записывается прямо на устройство.",
+      action() { switchView('notes'); }
+    },
+    {
+      targetSelector: "#notesSearchInput",
+      title: "Моментальный поиск по заметкам 🔎",
+      body: "Начните вводить текст сюда, и приложение моментально сфильтрует список по содержанию и заголовкам за сотые доли секунды.",
+      action() { switchView('notes'); }
+    },
+    {
+      targetSelector: "#viewSettings",
+      title: "Раздел настроек приложения ⚙️",
+      body: "Мы переключились в настройки. Здесь вы можете создавать базу сотрудников, персонализировать их, менять темы и сохранять данные.",
+      action() { switchView('settings'); }
+    },
+    {
+      targetSelector: "#addNewEmpBtn",
+      title: "Добавление сотрудников 👤",
+      body: "Добавляйте менеджеров с указанием цвета в календаре, почасовой ставки (за час) или посменной оплаты (ставка за день).",
+      action() { switchView('settings'); }
+    },
+    {
+      targetSelector: "#themeGrid",
+      title: "Темы оформления 🎨",
+      body: "Быстро переключайтесь между контрастной современной тёмной темой и чистой светлой.",
+      action() { switchView('settings'); }
+    },
+    {
+      targetSelector: "#exportJsonBtn",
+      title: "Бэкапы & Сверхнадёжность 🛡️",
+      body: "Приложение автоматически сохраняет данные в две системы: <strong>localStorage</strong> и <strong>Android SharedPreferences</strong>. Они выдерживают очистки кэша! Создавайте бэкапы в формате JSON для страховки.",
+      action() { switchView('settings'); }
+    },
+    {
+      title: "Вы готовы! 🎉",
+      body: "Теперь вы умеете пользоваться всеми возможностями ПВЗ График на 100%. Вы всегда можете запустить этот тур заново из настроек приложения.",
+      action() { switchView('schedule'); }
+    }
+  ];
+
+  function openTourPopover(target, step) {
+    const pop = $('tourPopover'); const spot = $('tourSpotlight');
+    if (target) {
+      spot.style.display = 'block';
+      target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      setTimeout(() => {
+        const rect = target.getBoundingClientRect();
+        spot.style.top = `${rect.top - 3}px`; spot.style.left = `${rect.left - 3}px`;
+        spot.style.width = `${rect.width + 6}px`; spot.style.height = `${rect.height + 6}px`;
+        positionPopover(rect, pop);
+      }, 100);
+    } else {
+      spot.style.display = 'block'; spot.style.top = '-9999px'; spot.style.left = '-9999px'; spot.style.width = '0px'; spot.style.height = '0px';
+      setTimeout(() => positionPopover(null, pop), 50);
+    }
+    $('tourTitle').textContent = step.title;
+    $('tourStepIndicator').textContent = `${currentStepIndex + 1}/${tourSteps.length}`;
+    $('tourBody').innerHTML = step.body;
+    $('tourBackBtn').style.display = currentStepIndex === 0 ? 'none' : 'block';
+    $('tourNextBtn').textContent = currentStepIndex === tourSteps.length - 1 ? "Вперёд 🏁" : "Далее →";
+  }
+
+  function positionPopover(targetRect, pop) {
+    pop.style.display = 'block'; const pRect = pop.getBoundingClientRect();
+    const vw = window.innerWidth; const vh = window.innerHeight;
+    let top = 0; let left = 0;
+
+    if (targetRect) {
+      const tcY = targetRect.top + targetRect.height / 2;
+      const tcX = targetRect.left + targetRect.width / 2;
+      top = tcY < vh / 2 ? (targetRect.bottom + 12) : (targetRect.top - pRect.height - 12);
+      top = Math.max(12, Math.min(top, vh - pRect.height - 12));
+      left = Math.max(12, Math.min(tcX - pRect.width / 2, vw - pRect.width - 12));
+    } else {
+      top = (vh - pRect.height) / 2; left = (vw - pRect.width) / 2;
+    }
+    pop.style.top = `${top}px`; pop.style.left = `${left}px`;
+  }
+
+  function startTour() {
+    if (!$('tourContainer')) {
+      const el = document.createElement('div'); el.id = 'tourContainer'; el.className = 'tour-container';
+      el.innerHTML = `
+        <div class="tour-blocker" id="tourBlocker"></div><div class="tour-spotlight" id="tourSpotlight"></div>
+        <div class="tour-popover" id="tourPopover">
+          <div class="tour-popover-header"><span class="tour-popover-title" id="tourTitle"></span><span class="tour-popover-step" id="tourStepIndicator"></span></div>
+          <div class="tour-popover-body" id="tourBody"></div>
+          <div class="tour-popover-footer">
+            <button class="btn btn-ghost" id="tourSkipBtn">Пропустить</button>
+            <div class="tour-nav-btns"><button class="btn btn-ghost" id="tourBackBtn">← Назад</button><button class="btn btn-primary" id="tourNextBtn"></button></div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(el);
+      $('tourNextBtn').addEventListener('click', () => { if (currentStepIndex < tourSteps.length - 1) { currentStepIndex++; updateTour(); } else endTour(); });
+      $('tourBackBtn').addEventListener('click', () => { if (currentStepIndex > 0) { currentStepIndex--; updateTour(); } });
+      $('tourSkipBtn').addEventListener('click', endTour);
+    }
+    $$('.modal.show').forEach(m => m.classList.remove('show'));
+    $('tourContainer').style.display = 'block'; currentStepIndex = 0; updateTour();
+  }
+
+  function updateTour() {
+    const s = tourSteps[currentStepIndex];
+    if (s.action) s.action();
+    setTimeout(() => {
+      let t = s.targetSelector ? document.querySelector(s.targetSelector) : null;
+      openTourPopover(t, s);
+    }, 110);
+  }
+
+  function endTour() {
+    if ($('tourContainer')) $('tourContainer').style.display = 'none';
+    safeStorage.set('PVZ_TOUR_COMPLETED_V2', '1');
+    switchView('schedule');
+  }
+
+  $('tourStartBtn').addEventListener('click', startTour);
+  $('settingsTourBtn').addEventListener('click', startTour);
+  $('aboutTourBtn').addEventListener('click', () => { $('aboutModal').classList.remove('show'); startTour(); });
+
+  // INITIAL STATE RECOVERY & BOOT
+  applyTheme(DATA.settings.theme || 'dark');
+  renderEmpBar(); renderCalendar(); renderStats(); renderSalary();
+  if (!safeStorage.get('PVZ_TOUR_COMPLETED_V2')) { setTimeout(startTour, 700); }
+
+  // SPLASH SCREEN HIDE
+  window.addEventListener('load', function() {
+    setTimeout(function() {
+      var sp = document.getElementById('splash');
+      if (sp) sp.classList.add('hide');
+      setTimeout(function() { if (sp) sp.style.display = 'none'; }, 400);
+    }, 300);
+  });
+  // OFFLINE DETECTION
+  window.addEventListener('offline', function() {
+    var ob = document.getElementById('offlineBanner');
+    if (ob) ob.style.display = 'block';
+  });
+  window.addEventListener('online', function() {
+    var ob = document.getElementById('offlineBanner');
+    if (ob) ob.style.display = 'none';
+  });
+  // SERVICE WORKER REGISTRATION
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('service-worker.js').then(function(reg) {
+        console.log('[SW] Registered:', reg.scope);
+      }).catch(function(err) {
+        console.warn('[SW] Registration failed:', err);
+      });
+    });
+  }
+
+  $$('button, .icon-action, .nav-btn').forEach(attachRipple);
+})();
+</script>
+</body>
+</html>
