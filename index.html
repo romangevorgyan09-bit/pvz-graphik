@@ -14,19 +14,7 @@
 <meta name="apple-mobile-web-app-title" content="ПВЗ График">
 <style>
 
-  /* SPLASH SCREEN */
-  #splash{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);transition:opacity .35s ease,transform .35s ease;pointer-events:none;}
-  #splash.hide{opacity:0;transform:scale(1.05);}
-  #splash .logo{width:64px;height:64px;background:var(--logo-bg);color:var(--logo-text);border-radius:18px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:32px;box-shadow:0 8px 24px rgba(255,219,77,0.2);animation:splashPulse 1.2s ease-in-out infinite alternate;}
-  @keyframes splashPulse{from{transform:scale(1);box-shadow:0 8px 24px rgba(255,219,77,0.2);}to{transform:scale(1.05);box-shadow:0 12px 32px rgba(255,219,77,0.35);}}
-  #splash .splash-title{font-size:18px;font-weight:800;margin-top:16px;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent;}
-  #splash .splash-sub{font-size:10px;color:var(--text-dim);margin-top:4px;text-transform:uppercase;letter-spacing:2px;font-weight:700;}
-  #splash .spinner{margin-top:24px;width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
-  @keyframes spin{to{transform:rotate(360deg);}}
-  @media(prefers-reduced-motion:reduce){#splash .logo{animation:none;}#splash .spinner{animation:none;}}
-  /* OFFLINE BANNER */
-  #offlineBanner{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,61,77,0.12);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);text-align:center;padding:6px;font-size:10px;font-weight:700;color:var(--action);border-bottom:1px solid rgba(255,61,77,0.15);display:none;pointer-events:none;}
-  
+
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
   :root {
     --yellow:#ffdb4d;--red:#ff3d4d;--red-glow:rgba(255,61,77,.3);--green:#34d399;--green-glow:rgba(52,211,153,.2);
@@ -352,25 +340,7 @@
 </head>
 <body>
 
-<div id="splash">
-  <div class="logo">📊</div>
-  <div class="splash-title">ПВЗ График</div>
-  <div class="splash-sub">Расписание &amp; Учёт</div>
-  <div class="spinner"></div>
-</div>
-<script>
-// Аварийный сброс сплеш-экрана — сработает через 2 сек в ЛЮБОМ случае
-(function(){
-  var sp = document.getElementById('splash');
-  if (sp) {
-    setTimeout(function(){
-      sp.classList.add('hide');
-      setTimeout(function(){ sp.style.display = 'none'; }, 400);
-    }, 2000);
-  }
-})();
-</script>
-<div id="offlineBanner">📡 Нет подключения к интернету — работаем офлайн</div>
+
 <div class="app" role="application">
   <header class="topbar">
     <div class="topbar-row">
@@ -1611,52 +1581,8 @@
   renderEmpBar(); renderCalendar(); renderStats(); renderSalary();
   if (!safeStorage.get('PVZ_TOUR_COMPLETED_V2')) { setTimeout(startTour, 700); }
 
-  // SPLASH SCREEN HIDE — надёжное скрытие
-  (function hideSplash() {
-    var sp = document.getElementById('splash');
-    if (sp && sp.style.display !== 'none') {
-      sp.classList.add('hide');
-      setTimeout(function() { if (sp) sp.style.display = 'none'; }, 400);
-    }
-  })();
-  // OFFLINE DETECTION
-  window.addEventListener('offline', function() {
-    var ob = document.getElementById('offlineBanner');
-    if (ob) ob.style.display = 'block';
-  });
-  window.addEventListener('online', function() {
-    var ob = document.getElementById('offlineBanner');
-    if (ob) ob.style.display = 'none';
-  });
-  // SERVICE WORKER REGISTRATION
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-      navigator.serviceWorker.register('service-worker.js').then(function(reg) {
-        console.log('[SW] Registered:', reg.scope);
-      }).catch(function(err) {
-        console.warn('[SW] Registration failed:', err);
-      });
-    });
-  }
 
 
-  // EXTERNAL LINKS HANDLER — открывает ссылки во внешнем браузере
-  document.addEventListener('click', function(e) {
-    var link = e.target.closest('a');
-    if (!link) return;
-    var href = link.getAttribute('href');
-    if (!href) return;
-    
-    // Открываем внешние ссылки (не на этот же сайт) в настоящем браузере
-    if (href.startsWith('http') && !href.includes('romangevorgyan09-bit.github.io/pvz-graphik')) {
-      e.preventDefault();
-      try {
-        window.open(href, '_system');
-      } catch(_) {
-        try { window.open(href, '_blank'); } catch(__) {}
-      }
-    }
-  });
 
   $$('button, .icon-action, .nav-btn').forEach(attachRipple);
 
