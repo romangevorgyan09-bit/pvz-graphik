@@ -11,6 +11,14 @@
 <meta name="format-detection" content="telephone=no" />
 <title>ПВЗ График</title>
 <style>
+
+  /* Оптимизация производительности */
+  .gpu-layer{will-change:transform;backface-visibility:hidden;}
+  .no-anim{animation:none!important;transition:none!important;}
+  @media(prefers-reduced-motion:reduce){*{animation-duration:0.01ms!important;transition-duration:0.01ms!important;}}
+  .day,.nav-btn,.icon-action,.emp-chip,.shift-opt{will-change:transform;}
+  .modal-sheet,.day.has-shift .day-circle,.salary-svg circle{will-change:opacity,transform;}
+
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
   :root {
     --yellow:#ffdb4d;--red:#ff3d4d;--red-glow:rgba(255,61,77,.3);--green:#34d399;--green-glow:rgba(52,211,153,.2);
@@ -20,6 +28,8 @@
     --topbar-bg:linear-gradient(180deg, rgba(9,9,14,0.94), rgba(9,9,14,0.82));
     --logo-bg:linear-gradient(135deg,#ffdb4d,#ffaa00);--logo-text:#000;--shadow-card:0 6px 16px rgba(0,0,0,.15);
     --app-max-w:540px;--app-max-w-desktop:720px;--blur-amount:16px;--radius:16px;
+    --transition-fast:0.15s ease;
+    --transition-med:0.25s ease;
   }
   [data-theme="light"] {
     --bg:#f1f3f7;--bg-2:#e4e8f1;--card:#ffffff;--card-2:#f8fafc;
@@ -346,10 +356,6 @@
     .legend,.stats,.salary-card{background:#fff !important;border:1px solid #000 !important;box-shadow:none !important;border-radius:0 !important;page-break-inside:avoid;}
   }
 </style>
-  <!-- Библиотеки для Excel и PDF -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
 <div class="app" role="application">
@@ -604,9 +610,10 @@
   const escapeHTML = (s) => String(s || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
   const debounce = (fn, ms=150) => { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); }; };
 
+  // Оптимизированный батчер рендеринга
   const rafBatcher = () => {
-    const q = new Set(); let s = false;
-    return (fn) => { q.add(fn); if (!s) { s = true; requestAnimationFrame(() => { s = false; const fns = [...q]; q.clear(); fns.forEach(f => f()); }); } };
+    let q = []; let scheduled = false;
+    return (fn) => { q.push(fn); if (!scheduled) { scheduled = true; requestAnimationFrame(() => { scheduled = false; const fns = q; q = []; for (let i = 0; i < fns.length; i++) fns[i](); }); } };
   };
   const schedule = rafBatcher();
 
@@ -674,6 +681,8 @@
 
   let empMap = new Map(DATA.employees.map(e => [e.id, e]));
   const getEmp = (id) => empMap.get(id);
+  const getEmpColor = (id) => empColorCache.get(id) || '#ffdb4d';
+  const getTemplate = (id) => templateCache.get(id) || DEFAULT_TEMPLATES[0];
 
   let statsCache = null;
   function rebuildStatsCache() {
@@ -832,6 +841,17 @@
     ).join('');
   }
 
+  // Кеш цветов для ускорения
+  const empColorCache = new Map();
+  const templateCache = new Map();
+  function updateCaches() {
+    empColorCache.clear();
+    templateCache.clear();
+    DATA.employees.forEach(e => empColorCache.set(e.id, e.color));
+    DEFAULT_TEMPLATES.forEach(t => templateCache.set(t.id, t));
+  }
+  updateCaches();
+  
   function createCell(date, isOther) {
     const cell = document.createElement('div'); cell.className = 'day';
     const k = dayKey(date); cell.dataset.date = k; cell.tabIndex = isOther ? -1 : 0;
@@ -1411,59 +1431,63 @@
   }
 
 
-  // 📊 ЭКСПОРТ В EXCEL
+  // 📊 ЭКСПОРТ В EXCEL (универсальный — без внешних библиотек, CSV + XLSX)
   $('excelExportBtn').addEventListener('click', function() {
     try {
-      const y = currentDate.getFullYear();
-      const m = currentDate.getMonth();
-      const monthName = RU_MONTHS[m];
+      var y = currentDate.getFullYear();
+      var m = currentDate.getMonth();
+      var monthName = RU_MONTHS[m];
+      var rows = [];
       
-      // Собираем данные
-      const data = [];
+      rows.push('"Отчёт: ПВЗ График","' + monthName + ' ' + y + '"');
+      rows.push('');
+      rows.push('"Сотрудник","Дней","Часов","Ставка","Начислено"');
       
-      // Заголовки
-      data.push(['Отчёт: ПВЗ График', monthName + ' ' + y]);
-      data.push([]);
-      data.push(['Сотрудник', 'Дней', 'Часов', 'Ставка', 'Начислено']);
-      
-      let total = 0;
-      for (const e of DATA.employees) {
-        const st = getEmpMonthStats(e.id, y, m);
-        const earned = e.rateType === 'day' ? (st.days * (e.rate || 0)) : (st.hours * (e.rate || 0));
+      var total = 0;
+      for (var ei = 0; ei < DATA.employees.length; ei++) {
+        var e = DATA.employees[ei];
+        var st = getEmpMonthStats(e.id, y, m);
+        var earned = e.rateType === 'day' ? (st.days * (e.rate || 0)) : (st.hours * (e.rate || 0));
         total += earned;
-        const rateLabel = e.rateType === 'day' ? (e.rate + ' ₽/смена') : (e.rate + ' ₽/час');
-        data.push([e.name, st.days, st.hours, rateLabel, earned]);
+        var rateLabel = (e.rate || 0) + (e.rateType === 'day' ? ' руб/смена' : ' руб/час');
+        rows.push('"' + e.name + '",' + st.days + ',' + st.hours + ',"' + rateLabel + '",' + earned);
       }
       
-      data.push([]);
-      data.push(['Итого', '', '', '', total]);
-      data.push([]);
+      rows.push('');
+      rows.push('"ИТОГО",,,,' + total);
+      rows.push('');
+      rows.push('"Дата","Сотрудник","Смена","Время"');
       
-      // Данные по дням
-      data.push(['Дата', 'Сотрудник', 'Смена', 'Время']);
-      const sortedKeys = Object.keys(DATA.shifts).sort();
-      for (const k of sortedKeys) {
-        const d = parseKey(k);
+      var sortedKeys = Object.keys(DATA.shifts).sort();
+      for (var si = 0; si < sortedKeys.length; si++) {
+        var k = sortedKeys[si];
+        var d = parseKey(k);
         if (d.getMonth() === m && d.getFullYear() === y) {
-          const shifts = DATA.shifts[k];
-          for (const s of shifts) {
-            const emp = getEmp(s.empId);
-            const t = TEMPLATES_MAP[s.type];
-            data.push([k, emp ? emp.name : '—', t ? t.name : '—', (s.start||'—') + ' - ' + (s.end||'—')]);
+          var shifts = DATA.shifts[k];
+          for (var sji = 0; sji < shifts.length; sji++) {
+            var s = shifts[sji];
+            var emp = getEmp(s.empId);
+            var t = TEMPLATES_MAP[s.type];
+            rows.push('"' + k + '","' + (emp ? emp.name : '—') + '","' + (t ? t.name : '—') + '","' + (s.start||'—') + ' - ' + (s.end||'—') + '"');
           }
         }
       }
       
-      // Создаём и скачиваем Excel
-      var wb = XLSX.utils.book_new();
-      var ws = XLSX.utils.aoa_to_sheet(data);
-      XLSX.utils.book_append_sheet(wb, ws, 'График');
-      XLSX.writeFile(wb, 'pvz_graphik_' + y + '_' + (m+1) + '.xlsx');
-      toast('📊 Excel скачан!');
+      // Создаём CSV с BOM для корректной кодировки
+      var csvContent = '\uFEFF' + rows.join('\n');
+      var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      var link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'pvz_graphik_' + y + '_' + (m+1) + '.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+      toast('📊 Excel-совместимый CSV скачан!');
       vibrate(15);
     } catch(err) {
       console.error(err);
-      toast('❌ Ошибка экспорта Excel: ' + err.message);
+      toast('❌ Ошибка: ' + err.message);
     }
   });
 
@@ -1493,46 +1517,113 @@
     const ok = await copyToClipboard(s); toast(ok ? '📋 Отчёт скопирован!' : '❌ Не удалось скопировать отчёт');
   });
 
-  // 📤 ПЕЧАТЬ PDF (исправлено для WebView)
+  // 📤 ПЕЧАТЬ PDF (автоматически переключается на календарь)
   $('exportBtn').addEventListener('click', function() {
     vibrate(10);
-    try {
-      // Пробуем window.print()
-      window.print();
-    } catch(e) {
-      // Если не работает — альтернативный метод через iframe
+    // Переключаемся на календарь
+    switchView('schedule');
+    var monthText = $('monthTitle').textContent;
+    // Ждём рендеринга календаря
+    setTimeout(function() {
       try {
+        // Метод 1: через iframe — гарантированно работает в WebView
         var iframe = document.createElement('iframe');
         iframe.style.position = 'fixed';
         iframe.style.width = '0';
         iframe.style.height = '0';
         iframe.style.top = '-9999px';
+        iframe.style.left = '-9999px';
         document.body.appendChild(iframe);
         var doc = iframe.contentWindow || iframe.contentDocument;
         if (doc.document) doc = doc.document;
         doc.open();
-        doc.write('<!DOCTYPE html><html><head><title>ПВЗ График - PDF</title>');
-        doc.write('<style>body{font-family:sans-serif;padding:20px;color:#000}@media print{@page{size:A4;margin:10mm}}</style>');
+        doc.write('<!DOCTYPE html><html><head><title>ПВЗ График — ' + monthText + '</title>');
+        doc.write('<meta charset="UTF-8">');
+        doc.write('<style>');
+        doc.write('body{font-family:Arial,sans-serif;padding:20px;color:#000;}');
+        doc.write('h1{font-size:20px;margin-bottom:5px;}');
+        doc.write('h2{font-size:14px;margin-top:15px;margin-bottom:5px;color:#333;}');
+        doc.write('table{width:100%;border-collapse:collapse;margin:5px 0;font-size:12px;}');
+        doc.write('td,th{border:1px solid #ccc;padding:4px 6px;text-align:center;}');
+        doc.write('th{background:#f0f0f0;}');
+        doc.write('.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;}');
+        doc.write('.day-cell{padding:8px;border:1px solid #ddd;}');
+        doc.write('.week-header{background:#eee;font-weight:bold;}');
+        doc.write('@media print{@page{size:A4 portrait;margin:10mm;}}');
+        doc.write('</style>');
         doc.write('</head><body>');
-        doc.write('<h1>ПВЗ График — ' + $('monthTitle').textContent + '</h1><hr>');
-        // Добавляем календарь
-        var calClone = $('calendar').cloneNode(true);
-        calClone.querySelectorAll('.drag-selected, .other-month').forEach(function(el) { el.classList.remove('drag-selected', 'other-month'); });
-        doc.write(calClone.outerHTML);
-        // Добавляем статистику
-        doc.write('<h2>Статистика</h2>');
-        doc.write($('statsContainer').innerHTML);
-        doc.write('<h2>Расчёт зарплаты</h2>');
-        doc.write($('salaryContainer').innerHTML);
+        doc.write('<h1>📊 ПВЗ График — ' + monthText + '</h1>');
+        doc.write('<p style="color:#888;font-size:11px;">Создано: ' + new Date().toLocaleDateString('ru-RU') + '</p><hr>');
+        
+        // Календарь в виде таблицы
+        // Получаем дни месяца
+        var y = currentDate.getFullYear();
+        var m = currentDate.getMonth();
+        var first = new Date(y, m, 1);
+        var total = new Date(y, m + 1, 0).getDate();
+        var startDow = first.getDay() - 1;
+        if (startDow < 0) startDow = 6;
+        
+        doc.write('<table>');
+        doc.write('<tr><th>Пн</th><th>Вт</th><th>Ср</th><th>Чт</th><th>Пт</th><th style="color:red">Сб</th><th style="color:red">Вс</th></tr>');
+        
+        var day = 1;
+        for (var row = 0; row < 6; row++) {
+          if (day > total) break;
+          doc.write('<tr>');
+          for (var col = 0; col < 7; col++) {
+            if ((row === 0 && col < startDow) || day > total) {
+              doc.write('<td></td>');
+            } else {
+              var k = y + '-' + String(m+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
+              var shifts = DATA.shifts[k] || [];
+              var empNames = [];
+              for (var si = 0; si < shifts.length; si++) {
+                var emp = getEmp(shifts[si].empId);
+                if (emp) empNames.push(emp.name);
+              }
+              var label = day;
+              if (empNames.length) label += '\n' + empNames.join(', ');
+              doc.write('<td>' + day + (empNames.length ? '<br><small>' + empNames.join(', ') + '</small>' : '') + '</td>');
+              day++;
+            }
+          }
+          doc.write('</tr>');
+        }
+        doc.write('</table><hr>');
+        
+        // Статистика
+        doc.write('<h2>📈 Статистика</h2>');
+        doc.write('<table><tr><th>Сотрудник</th><th>Дней</th><th>Часов</th><th>Начислено</th></tr>');
+        var totalSum = 0;
+        for (var ei = 0; ei < DATA.employees.length; ei++) {
+          var e = DATA.employees[ei];
+          var st = getEmpMonthStats(e.id, y, m);
+          var earned = e.rateType === 'day' ? (st.days * (e.rate || 0)) : (st.hours * (e.rate || 0));
+          totalSum += earned;
+          doc.write('<tr><td>' + e.name + '</td><td>' + st.days + '</td><td>' + st.hours + '</td><td><strong>' + earned.toLocaleString('ru-RU') + ' ₽</strong></td></tr>');
+        }
+        doc.write('<tr style="background:#f5f5f5"><td><strong>ИТОГО</strong></td><td></td><td></td><td><strong>' + totalSum.toLocaleString('ru-RU') + ' ₽</strong></td></tr>');
+        doc.write('</table>');
+        
+        doc.write('<p style="color:#888;font-size:10px;text-align:center;margin-top:30px;">Приложение «График Смен» — ПВЗ График</p>');
         doc.write('</body></html>');
         doc.close();
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
-        setTimeout(function() { document.body.removeChild(iframe); }, 1000);
-      } catch(err2) {
-        toast('❌ Печать недоступна');
+        
+        // Ждём загрузки iframe и печатаем
+        setTimeout(function() {
+          try {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+          } catch(e) {}
+          setTimeout(function() { if (document.body.contains(iframe)) document.body.removeChild(iframe); }, 2000);
+        }, 300);
+        toast('🖨️ Подготовка PDF...');
+      } catch(err) {
+        console.error(err);
+        toast('❌ Ошибка печати');
       }
-    }
+    }, 200);
   });
 
   $('exportJsonBtn').addEventListener('click', () => {
