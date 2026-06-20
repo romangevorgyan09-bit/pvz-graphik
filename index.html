@@ -321,6 +321,19 @@
   .tour-popover-footer .btn-ghost{color:var(--text-dim);}
   .tour-nav-btns{display:flex;gap:4px;}
   /* PRINT OPTIMIZATION */
+  /* ПОЛНОЭКРАННЫЙ РЕДАКТОР ЗАМЕТОК */
+  .note-editor-full{position:fixed;inset:0;z-index:100;background:var(--bg);display:none;flex-direction:column;}
+  .note-editor-full.show{display:flex;}
+  .note-editor-full .ne-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;padding-top:calc(env(safe-area-inset-top,0) + 12px);background:var(--topbar-bg);border-bottom:1px solid var(--border);backdrop-filter:blur(var(--blur-amount));-webkit-backdrop-filter:blur(var(--blur-amount));}
+  .note-editor-full .ne-header .ne-back{width:36px;height:36px;border:1px solid var(--border);background:var(--card);border-radius:10px;font-size:16px;cursor:pointer;color:var(--text);display:flex;align-items:center;justify-content:center;}
+  .note-editor-full .ne-header .ne-title{font-size:17px;font-weight:800;color:var(--text);}
+  .note-editor-full .ne-header .ne-actions{display:flex;gap:6px;}
+  .note-editor-full .ne-header .ne-action-btn{padding:8px 14px;border-radius:10px;border:0;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;}
+  .note-editor-full .ne-body{flex:1;padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;}
+  .note-editor-full .ne-body input{width:100%;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:18px;font-weight:700;font-family:inherit;outline:none;}
+  .note-editor-full .ne-body input:focus{border-color:var(--accent);}
+  .note-editor-full .ne-body textarea{width:100%;flex:1;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:15px;font-family:inherit;outline:none;resize:none;line-height:1.5;}
+  .note-editor-full .ne-body textarea:focus{border-color:var(--accent);}
   @media print {
     body{background:#fff !important;color:#000 !important;}
     .bottom-nav,.topbar,.emp-bar,.month-nav button,.drag-mode-hint,.btn-ghost,.fab-btn,.toast{display:none !important;}
@@ -333,6 +346,10 @@
     .legend,.stats,.salary-card{background:#fff !important;border:1px solid #000 !important;box-shadow:none !important;border-radius:0 !important;page-break-inside:avoid;}
   }
 </style>
+  <!-- Библиотеки для Excel и PDF -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
 <div class="app" role="application">
@@ -348,6 +365,7 @@
       <div class="topbar-actions">
         <button class="icon-action" id="tourStartBtn" title="Обучение">🎓</button>
         <button class="icon-action" id="textExportBtn" title="Копировать текстовый отчёт">📄</button>
+        <button class="icon-action" id="excelExportBtn" title="Экспорт в Excel">📊</button>
         <button class="icon-action" id="exportBtn" title="Печать PDF">📤</button>
       </div>
     </div>
@@ -508,6 +526,21 @@
       <button class="btn btn-ghost" id="empModalCancelBtn">Отмена</button>
       <button class="btn btn-primary" id="empModalSaveBtn">Сохранить</button>
     </div>
+  </div>
+</div>
+<div class="note-editor-full" id="noteEditorFull">
+  <div class="ne-header">
+    <button class="ne-back" id="neBackBtn">←</button>
+    <div class="ne-title" id="neTitle">Заметка</div>
+    <div class="ne-actions">
+      <button class="ne-action-btn" id="neDeleteBtn" style="background:rgba(255,61,77,0.1);color:var(--action);display:none;">🗑</button>
+      <button class="ne-action-btn" id="neSaveBtn" style="background:linear-gradient(135deg,var(--accent),var(--accent-2));color:var(--accent-text);">💾</button>
+    </div>
+  </div>
+  <div class="ne-body">
+    <input type="hidden" id="neId" />
+    <input type="text" id="neTitleInput" placeholder="Заголовок" autocomplete="off" />
+    <textarea id="neBodyTextarea" placeholder="Текст заметки..."></textarea>
   </div>
 </div>
 <div class="modal" id="noteEditModal">
@@ -1211,6 +1244,69 @@
   });
   $('notesSearchInput').addEventListener('input', debounce(renderNotes, 100));
 
+
+  // 📝 ПОЛНОЭКРАННЫЙ РЕДАКТОР ЗАМЕТОК
+  const neSaveBtn = $('neSaveBtn');
+  const neBackBtn = $('neBackBtn');
+  const neDeleteBtn = $('neDeleteBtn');
+  const neTitle = $('neTitle');
+  const neId = $('neId');
+  const neTitleInput = $('neTitleInput');
+  const neBodyTextarea = $('neBodyTextarea');
+  const neEditor = $('noteEditorFull');
+
+  function openFullNoteEditor(note) {
+    if (note) {
+      neTitle.textContent = 'Редактировать';
+      neId.value = note.id;
+      neTitleInput.value = note.title || '';
+      neBodyTextarea.value = note.body || '';
+      neDeleteBtn.style.display = 'block';
+    } else {
+      neTitle.textContent = 'Новая заметка';
+      neId.value = '';
+      neTitleInput.value = '';
+      neBodyTextarea.value = '';
+      neDeleteBtn.style.display = 'none';
+    }
+    neEditor.classList.add('show');
+    setTimeout(function() { neTitleInput.focus(); }, 200);
+  }
+
+  neSaveBtn.addEventListener('click', function() {
+    var id = neId.value;
+    var title = neTitleInput.value.trim();
+    var body = neBodyTextarea.value.trim();
+    if (!title && !body) { toast('Заметка пуста'); return; }
+    var dt = new Date().toLocaleDateString('ru-RU', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    if (id) {
+      var n = DATA.personalNotes.find(function(x) { return x.id === id; });
+      if (n) { n.title = title; n.body = body; n.date = dt; }
+    } else {
+      DATA.personalNotes.push({ id:'note_'+Date.now()+'_'+Math.random().toString(36).slice(2,5), title: title, body: body, date: dt });
+    }
+    vibrate(15); saveData(); neEditor.classList.remove('show'); renderNotes(); toast('✓ Сохранено');
+  });
+
+  neBackBtn.addEventListener('click', function() {
+    neEditor.classList.remove('show');
+  });
+
+  neDeleteBtn.addEventListener('click', async function() {
+    var id = neId.value;
+    if (!id) return;
+    var ok = await customConfirm('Удаление', 'Удалить заметку безвозвратно?');
+    if (!ok) return;
+    DATA.personalNotes = DATA.personalNotes.filter(function(x) { return x.id !== id; });
+    vibrate(20); saveData(); neEditor.classList.remove('show'); renderNotes(); toast('Удалено');
+  });
+
+  // Перенаправляем клик по заметке на полный редактор
+  var origOpenNote = openNoteEditModal;
+  openNoteEditModal = function(n) {
+    openFullNoteEditor(n);
+  };
+
   // APP SETTINGS ENGINE
   const SWITCH_COLORS = ['#ffdb4d', '#34d399', '#60a5fa', '#f87171', '#c084fc', '#f472b6', '#fb923c', '#2dd4bf'];
   let currentSelectColor = SWITCH_COLORS[0];
@@ -1314,6 +1410,63 @@
     } catch(_) { return false; }
   }
 
+
+  // 📊 ЭКСПОРТ В EXCEL
+  $('excelExportBtn').addEventListener('click', function() {
+    try {
+      const y = currentDate.getFullYear();
+      const m = currentDate.getMonth();
+      const monthName = RU_MONTHS[m];
+      
+      // Собираем данные
+      const data = [];
+      
+      // Заголовки
+      data.push(['Отчёт: ПВЗ График', monthName + ' ' + y]);
+      data.push([]);
+      data.push(['Сотрудник', 'Дней', 'Часов', 'Ставка', 'Начислено']);
+      
+      let total = 0;
+      for (const e of DATA.employees) {
+        const st = getEmpMonthStats(e.id, y, m);
+        const earned = e.rateType === 'day' ? (st.days * (e.rate || 0)) : (st.hours * (e.rate || 0));
+        total += earned;
+        const rateLabel = e.rateType === 'day' ? (e.rate + ' ₽/смена') : (e.rate + ' ₽/час');
+        data.push([e.name, st.days, st.hours, rateLabel, earned]);
+      }
+      
+      data.push([]);
+      data.push(['Итого', '', '', '', total]);
+      data.push([]);
+      
+      // Данные по дням
+      data.push(['Дата', 'Сотрудник', 'Смена', 'Время']);
+      const sortedKeys = Object.keys(DATA.shifts).sort();
+      for (const k of sortedKeys) {
+        const d = parseKey(k);
+        if (d.getMonth() === m && d.getFullYear() === y) {
+          const shifts = DATA.shifts[k];
+          for (const s of shifts) {
+            const emp = getEmp(s.empId);
+            const t = TEMPLATES_MAP[s.type];
+            data.push([k, emp ? emp.name : '—', t ? t.name : '—', (s.start||'—') + ' - ' + (s.end||'—')]);
+          }
+        }
+      }
+      
+      // Создаём и скачиваем Excel
+      var wb = XLSX.utils.book_new();
+      var ws = XLSX.utils.aoa_to_sheet(data);
+      XLSX.utils.book_append_sheet(wb, ws, 'График');
+      XLSX.writeFile(wb, 'pvz_graphik_' + y + '_' + (m+1) + '.xlsx');
+      toast('📊 Excel скачан!');
+      vibrate(15);
+    } catch(err) {
+      console.error(err);
+      toast('❌ Ошибка экспорта Excel: ' + err.message);
+    }
+  });
+
   $('textExportBtn').addEventListener('click', async () => {
     const currentM = $('monthTitle').textContent;
     let s = `=========================\n📊 ОТЧЁТ: ПВЗ ГРАФИК (${currentM.toUpperCase()})\n=========================\n\n📅 Календарь по дням:\n`;
@@ -1340,7 +1493,47 @@
     const ok = await copyToClipboard(s); toast(ok ? '📋 Отчёт скопирован!' : '❌ Не удалось скопировать отчёт');
   });
 
-  $('exportBtn').addEventListener('click', () => { vibrate(10); window.print(); });
+  // 📤 ПЕЧАТЬ PDF (исправлено для WebView)
+  $('exportBtn').addEventListener('click', function() {
+    vibrate(10);
+    try {
+      // Пробуем window.print()
+      window.print();
+    } catch(e) {
+      // Если не работает — альтернативный метод через iframe
+      try {
+        var iframe = document.createElement('iframe');
+        iframe.style.position = 'fixed';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.top = '-9999px';
+        document.body.appendChild(iframe);
+        var doc = iframe.contentWindow || iframe.contentDocument;
+        if (doc.document) doc = doc.document;
+        doc.open();
+        doc.write('<!DOCTYPE html><html><head><title>ПВЗ График - PDF</title>');
+        doc.write('<style>body{font-family:sans-serif;padding:20px;color:#000}@media print{@page{size:A4;margin:10mm}}</style>');
+        doc.write('</head><body>');
+        doc.write('<h1>ПВЗ График — ' + $('monthTitle').textContent + '</h1><hr>');
+        // Добавляем календарь
+        var calClone = $('calendar').cloneNode(true);
+        calClone.querySelectorAll('.drag-selected, .other-month').forEach(function(el) { el.classList.remove('drag-selected', 'other-month'); });
+        doc.write(calClone.outerHTML);
+        // Добавляем статистику
+        doc.write('<h2>Статистика</h2>');
+        doc.write($('statsContainer').innerHTML);
+        doc.write('<h2>Расчёт зарплаты</h2>');
+        doc.write($('salaryContainer').innerHTML);
+        doc.write('</body></html>');
+        doc.close();
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+        setTimeout(function() { document.body.removeChild(iframe); }, 1000);
+      } catch(err2) {
+        toast('❌ Печать недоступна');
+      }
+    }
+  });
 
   $('exportJsonBtn').addEventListener('click', () => {
     try {
