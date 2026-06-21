@@ -1,9 +1,9 @@
 name: 🏗️ Сборка APK
 
 on:
+  workflow_dispatch:     # Запускается только вручную
   push:
     branches: [ "main" ]
-  workflow_dispatch:
 
 permissions:
   contents: write
@@ -16,23 +16,41 @@ jobs:
       - name: 📥 Скачать код
         uses: actions/checkout@v4
 
-      - name: 🏗️ Создать простой WebView APK
-        uses: r0adkll/web-to-apk-action@v1
+      - name: 📦 Настроить Node.js
+        uses: actions/setup-node@v4
         with:
-          app-name: "График Смен"
-          package-name: "com.mycompany.pvzgrafik"
-          website-url: "https://romangevorgyan09-bit.github.io/pvz-graphik/"
-          output-name: "pvz-graphik.apk"
-          version-code: ${{ github.run_number }}
-          version-name: "1.${{ github.run_number }}"
+          node-version: 20
 
-      - name: 📤 Создать Release и прикрепить APK
+      - name: 🔧 Установить зависимости
+        run: |
+          npm install -g @capacitor/cli
+          npm install @capacitor/android @capacitor/core
+
+      - name: 🏗️ Инициализация Capacitor
+        run: |
+          npx cap init --web-dir . --name "График Смен" --id com.mycompany.pvzgrafik || echo "Already initialized"
+
+      - name: 📱 Добавить Android платформу
+        run: npx cap add android
+
+      - name: 🛠️ Собрать APK
+        run: |
+          npx cap sync android
+          cd android
+          ./gradlew assembleDebug --quiet
+
+      - name: 📤 Найти и переименовать APK
+        run: |
+          mkdir -p ./dist
+          cp android/app/build/outputs/apk/debug/app-debug.apk ./dist/pvz-graphik.apk
+
+      - name: 📤 Создать Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ github.run_number }}
-          name: Версия ${{ github.run_number }}
+          name: График Смен v${{ github.run_number }}
           draft: false
           prerelease: false
-          files: "*.apk"
+          files: ./dist/pvz-graphik.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
