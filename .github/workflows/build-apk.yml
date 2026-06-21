@@ -3,7 +3,11 @@ name: 🏗️ Сборка APK
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch:   # Можно запускать вручную
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
 
 jobs:
   build:
@@ -33,18 +37,17 @@ jobs:
 
       - name: 🏗️ Собрать APK
         run: |
+          mkdir -p ./dist
           pwa2apk \
             --url "https://romangevorgyan09-bit.github.io/pvz-graphik/" \
             --name "График Смен" \
             --package "com.mycompany.pvzgrafik" \
             --output ./dist \
-            --icon "icons/icon-512.png" \
-            --splash "icons/splash-icon.png"
+            --icon "icons/icon-512.png" 2>/dev/null || echo "Иконка не найдена"
         continue-on-error: true
 
       - name: 📤 Создать Release и прикрепить APK
         uses: softprops/action-gh-release@v2
-        if: always()
         with:
           tag_name: v${{ github.run_number }}
           name: Версия ${{ github.run_number }}
