@@ -16,35 +16,15 @@ jobs:
       - name: 📥 Скачать код
         uses: actions/checkout@v4
 
-      - name: 🏗️ Создать APK (WebView обёртка)
-        uses: darkshredder/web-to-app-action@main
+      - name: 🏗️ Создать простой WebView APK
+        uses: r0adkll/web-to-apk-action@v1
         with:
           app-name: "График Смен"
           package-name: "com.mycompany.pvzgrafik"
           website-url: "https://romangevorgyan09-bit.github.io/pvz-graphik/"
-          output-dir: "./dist"
-
-      - name: 📤 Создать Release с APK
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ github.run_number }}
-          name: Версия ${{ github.run_number }}
-          draft: false
-          prerelease: false
-          files: |
-            ./dist/*.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: 🏗️ Собрать APK
-        run: |
-          mkdir -p ./dist
-          pwa2apk \
-            --url "https://romangevorgyan09-bit.github.io/pvz-graphik/" \
-            --name "График Смен" \
-            --package "com.mycompany.pvzgrafik" \
-            --output ./dist \
-            --icon "icons/icon-512.png" 2>/dev/null || echo "Иконка не найдена"
-        continue-on-error: true
+          output-name: "pvz-graphik.apk"
+          version-code: ${{ github.run_number }}
+          version-name: "1.${{ github.run_number }}"
 
       - name: 📤 Создать Release и прикрепить APK
         uses: softprops/action-gh-release@v2
@@ -53,8 +33,6 @@ jobs:
           name: Версия ${{ github.run_number }}
           draft: false
           prerelease: false
-          files: |
-            ./dist/*.apk
-            ./*.apk
+          files: "*.apk"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
