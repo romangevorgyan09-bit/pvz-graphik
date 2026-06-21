@@ -1,10 +1,9 @@
 name: 🏗️ Сборка APK
 
-# Запускается при каждом обновлении main + можно запустить вручную
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch:
+  workflow_dispatch:   # Можно запускать вручную
 
 jobs:
   build:
@@ -36,16 +35,23 @@ jobs:
         run: |
           pwa2apk \
             --url "https://romangevorgyan09-bit.github.io/pvz-graphik/" \
-            --name "ПВЗ График" \
-            --package "com.pvz.schedule" \
-            --output ./dist
+            --name "График Смен" \
+            --package "com.mycompany.pvzgrafik" \
+            --output ./dist \
+            --icon "icons/icon-512.png" \
+            --splash "icons/splash-icon.png"
         continue-on-error: true
 
-      - name: 📤 Загрузить APK
-        uses: actions/upload-artifact@v4
+      - name: 📤 Создать Release и прикрепить APK
+        uses: softprops/action-gh-release@v2
+        if: always()
         with:
-          name: pvz-graphik-apk
-          path: |
+          tag_name: v${{ github.run_number }}
+          name: Версия ${{ github.run_number }}
+          draft: false
+          prerelease: false
+          files: |
             ./dist/*.apk
             ./*.apk
-          if-no-files-found: warn
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
