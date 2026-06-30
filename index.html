@@ -10,6 +10,11 @@
 <meta name="theme-color" content="#eef1f6" media="(prefers-color-scheme: light)" />
 <meta name="format-detection" content="telephone=no" />
 <title>ПВЗ График</title>
+<meta name="application-name" content="ПВЗ График" />
+<meta name="apple-mobile-web-app-title" content="ПВЗ График" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
 <style>
 
   /* Оптимизация производительности */
@@ -303,6 +308,8 @@
   /* TOAST */
   .toast{position:fixed;bottom:calc(env(safe-area-inset-bottom,0) + 102px);left:50%;transform:translate(-50%,15px);background:rgba(9,9,14,0.95);border:1px solid var(--border);color:#fff;padding:8px 16px;border-radius:99px;font-size:12px;font-weight:700;z-index:200;pointer-events:none;opacity:0;transition:opacity .18s,transform .18s;box-shadow:0 6px 20px rgba(0,0,0,.35);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);max-width:calc(100% - 32px);text-align:center;}
   .toast.show{opacity:1;transform:translate(-50%,0);}
+  .offline-banner{position:fixed;top:calc(env(safe-area-inset-top,0) + 8px);left:50%;transform:translateX(-50%);z-index:250;display:none;align-items:center;gap:6px;max-width:calc(100% - 24px);padding:8px 14px;border-radius:999px;background:rgba(255,61,77,.95);color:#fff;font-size:12px;font-weight:800;box-shadow:0 6px 20px rgba(0,0,0,.28);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
+  .offline-banner.show{display:flex;animation:fadeIn .18s ease;}
   /* TELEGRAM BUTTON AND BADGE */
   .about-tg-badge {display:inline-flex;align-items:center;gap:6px;background:rgba(30,150,227,0.12);border:1px solid rgba(30,150,227,0.3);color:#1e96e3;padding:4px 10px;border-radius:99px;font-size:10px;font-weight:800;margin-top:4px;}
   /* CUSTOM DIALOG */
@@ -313,23 +320,45 @@
   .ripple-container{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1;}
   .ripple-ring{position:absolute;border-radius:50%;background:rgba(255,219,77,0.18);transform:translate(-50%,-50%) scale(0);animation:rippleEffect .45s cubic-bezier(0.1,0.8,0.3,1) forwards;}
   @keyframes rippleEffect{to{transform:translate(-50%,-50%) scale(1);opacity:0;}}
-  /* TUOR INTERACTIVE STYLE */
-  .tour-container{position:fixed;inset:0;z-index:99999;pointer-events:none;}
+  /* INTERACTIVE TOUR */
+  .tour-container{position:fixed;inset:0;z-index:99999;display:none;pointer-events:none;}
+  .tour-container.show{display:block;}
   .tour-blocker{position:fixed;inset:0;z-index:99998;pointer-events:auto;background:transparent;}
-  .tour-spotlight{position:fixed;border-radius:10px;box-shadow:0 0 0 9999px rgba(9,9,14,0.7);border:2px solid var(--accent);transition:all 0.28s ease-out;pointer-events:none;z-index:100000;}
-  .tour-spotlight::after{content:'';position:absolute;inset:-4px;border:1.5px solid var(--accent);border-radius:12px;opacity:0;animation:tourPulse 2s infinite;}
-  @keyframes tourPulse{0%{transform:scale(0.98);opacity:0.8;}50%{transform:scale(1.03);opacity:0.15;}100%{transform:scale(1.05);opacity:0;}}
-  .tour-popover{position:fixed;z-index:100001;background:var(--card-2);border:1.5px solid var(--accent);border-radius:16px;padding:14px;width:300px;max-width:calc(100vw - 24px);box-shadow:0 10px 30px rgba(0,0,0,0.5);pointer-events:auto;transition:all 0.28s ease-out;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);animation:tourPopIn 0.25s cubic-bezier(.15,.88,.3,1.2);}
-  @keyframes tourPopIn{from{opacity:0;transform:translateY(8px) scale(0.96);}to{opacity:1;transform:translateY(0) scale(1);}}
-  .tour-popover-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-  .tour-popover-title{font-size:14px;font-weight:800;color:var(--text);}
-  .tour-popover-step{font-size:9px;font-weight:700;background:rgba(255,219,77,0.12);color:var(--accent);padding:2px 6px;border-radius:99px;}
-  .tour-popover-body{font-size:12px;line-height:1.45;color:var(--text);margin-bottom:12px;}
-  .tour-popover-body strong{color:var(--accent);}
-  .tour-popover-footer{display:flex;justify-content:space-between;align-items:center;gap:6px;}
-  .tour-popover-footer .btn{font-size:11px;padding:6px 10px;border-radius:8px;min-width:50px;margin:0;}
+  .tour-container.centered .tour-blocker{background:rgba(5,5,10,.40);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);}
+  [data-theme="light"] .tour-container.centered .tour-blocker{background:rgba(15,23,42,.24);}
+  .tour-spotlight{position:fixed;z-index:100000;left:0;top:0;width:0;height:0;border-radius:18px;border:2px solid var(--accent);box-shadow:0 0 0 9999px rgba(9,9,14,.64),0 0 0 6px rgba(255,219,77,.10),0 14px 44px rgba(255,219,77,.16);pointer-events:none;opacity:0;transform:translate3d(0,0,0);transition:left .26s cubic-bezier(.2,.8,.2,1),top .26s cubic-bezier(.2,.8,.2,1),width .26s cubic-bezier(.2,.8,.2,1),height .26s cubic-bezier(.2,.8,.2,1),opacity .18s ease,border-radius .26s ease;}
+  .tour-spotlight.is-visible{opacity:1;}
+  .tour-spotlight::after{content:'';position:absolute;inset:-6px;border:1.5px solid var(--accent);border-radius:inherit;opacity:.7;animation:tourPulse 1.8s ease-out infinite;}
+  @keyframes tourPulse{0%{transform:scale(.98);opacity:.7;}70%{transform:scale(1.04);opacity:.08;}100%{transform:scale(1.06);opacity:0;}}
+  .tour-popover{position:fixed;z-index:100001;width:min(360px,calc(100vw - 24px));background:linear-gradient(180deg,var(--card-2),var(--bg-2));border:1.5px solid rgba(255,219,77,.45);border-radius:20px;padding:14px;box-shadow:0 18px 50px rgba(0,0,0,.52);pointer-events:auto;opacity:0;transform:translate3d(0,8px,0) scale(.98);transition:top .24s cubic-bezier(.2,.8,.2,1),left .24s cubic-bezier(.2,.8,.2,1),opacity .18s ease,transform .22s cubic-bezier(.2,.8,.2,1);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);}
+  .tour-popover.show{opacity:1;transform:translate3d(0,0,0) scale(1);}
+  .tour-progress{height:4px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;margin-bottom:12px;}
+  [data-theme="light"] .tour-progress{background:rgba(15,23,42,.08);}
+  .tour-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:inherit;transition:width .26s ease;}
+  .tour-popover-header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;}
+  .tour-popover-step{font-size:10px;font-weight:900;background:rgba(255,219,77,0.12);color:var(--accent);padding:4px 9px;border-radius:99px;text-transform:uppercase;letter-spacing:.4px;}
+  .tour-close{width:30px;height:30px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text-dim);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .tour-close:active{transform:scale(.94);}
+  .tour-popover-title{font-size:16px;font-weight:900;color:var(--text);letter-spacing:-.2px;margin-bottom:6px;}
+  .tour-popover-body{font-size:13px;line-height:1.48;color:var(--text);margin-bottom:10px;}
+  .tour-popover-body strong{color:var(--accent);font-weight:900;}
+  .tour-hint{display:none;margin:8px 0 12px;padding:8px 10px;border-radius:12px;background:rgba(255,219,77,.08);border:1px dashed rgba(255,219,77,.35);color:var(--text);font-size:11px;line-height:1.35;font-weight:700;}
+  .tour-hint.show{display:block;}
+  .tour-dots{display:flex;align-items:center;gap:4px;margin:8px 0 12px;}
+  .tour-dot{height:5px;width:5px;border:0;border-radius:99px;background:var(--border);padding:0;cursor:pointer;transition:width .18s ease,background .18s ease;}
+  .tour-dot.active{width:18px;background:var(--accent);}
+  .tour-popover-footer{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+  .tour-popover-footer .btn{font-size:12px;padding:8px 12px;border-radius:10px;min-width:64px;margin:0;}
   .tour-popover-footer .btn-ghost{color:var(--text-dim);}
-  .tour-nav-btns{display:flex;gap:4px;}
+  .tour-nav-btns{display:flex;gap:6px;}
+  .tour-nudge{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0) + 92px);z-index:260;max-width:420px;margin:0 auto;background:linear-gradient(180deg,var(--card-2),var(--bg-2));border:1px solid rgba(255,219,77,.35);border-radius:18px;padding:12px;box-shadow:0 14px 40px rgba(0,0,0,.42);transform:translateY(18px);opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);}
+  .tour-nudge.show{opacity:1;transform:translateY(0);pointer-events:auto;}
+  .tour-nudge-title{font-size:13px;font-weight:900;color:var(--text);margin-bottom:4px;}
+  .tour-nudge-text{font-size:11.5px;color:var(--text-dim);line-height:1.35;margin-bottom:10px;}
+  .tour-nudge-actions{display:flex;gap:6px;}
+  .tour-nudge-actions .btn{font-size:11px;padding:8px;border-radius:10px;}
+  @media(max-width:380px){.tour-popover{width:calc(100vw - 18px);padding:12px;border-radius:16px}.tour-popover-title{font-size:15px}.tour-popover-body{font-size:12px}.tour-popover-footer{align-items:stretch;flex-direction:column}.tour-nav-btns{display:grid;grid-template-columns:1fr 1fr;width:100%;}.tour-popover-footer .btn{width:100%;}}
+  @media(prefers-reduced-motion:reduce){.tour-spotlight,.tour-popover,.tour-progress-fill,.tour-nudge{transition:none!important}.tour-spotlight::after{animation:none!important;}}
   /* PRINT OPTIMIZATION */
   /* ПОЛНОЭКРАННЫЙ РЕДАКТОР ЗАМЕТОК */
   .note-editor-full{position:fixed;inset:0;z-index:100;background:var(--bg);display:none;flex-direction:column;}
@@ -372,7 +401,7 @@
         <button class="icon-action" id="tourStartBtn" title="Обучение">🎓</button>
         <button class="icon-action" id="textExportBtn" title="Копировать текстовый отчёт">📄</button>
         <button class="icon-action" id="excelExportBtn" title="Экспорт в Excel">📊</button>
-        <button class="icon-action" id="exportBtn" title="Печать PDF">📤</button>
+        <button class="icon-action" id="exportBtn" title="Скачать PDF">📤</button>
       </div>
     </div>
   </header>
@@ -465,6 +494,7 @@
   </nav>
 </div>
 <div class="toast" id="toast">✓ Готово</div>
+<div class="offline-banner" id="offlineBanner" role="status" aria-live="polite">📴 Нет интернета — приложение работает офлайн</div>
 <!-- MODALS -->
 <div class="modal" id="dayModal">
   <div class="modal-sheet">
@@ -610,12 +640,29 @@
   const escapeHTML = (s) => String(s || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
   const debounce = (fn, ms=150) => { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); }; };
 
-  // Оптимизированный батчер рендеринга
-  const rafBatcher = () => {
-    let q = []; let scheduled = false;
-    return (fn) => { q.push(fn); if (!scheduled) { scheduled = true; requestAnimationFrame(() => { scheduled = false; const fns = q; q = []; for (let i = 0; i < fns.length; i++) fns[i](); }); } };
-  };
-  const schedule = rafBatcher();
+  // COALESCED RENDER SCHEDULER: объединяет несколько обновлений в один кадр
+  const nextFrame = (fn) => (window.requestAnimationFrame || ((cb) => setTimeout(cb, 16))).call(window, fn);
+  const pendingRender = new Set();
+  let renderScheduled = false;
+  function requestRender(...parts) {
+    for (const part of parts) {
+      if (Array.isArray(part)) part.forEach((p) => pendingRender.add(p));
+      else pendingRender.add(part);
+    }
+    if (renderScheduled) return;
+    renderScheduled = true;
+    nextFrame(() => {
+      renderScheduled = false;
+      const q = new Set(pendingRender);
+      pendingRender.clear();
+      if (q.has('empBar')) renderEmpBar();
+      if (q.has('settings')) renderSettings();
+      if (q.has('calendar')) renderCalendar();
+      if (q.has('stats')) renderStats();
+      if (q.has('salary')) renderSalary();
+      if (q.has('notes')) renderNotes();
+    });
+  }
 
   // PHYSICAL HAPTIC VIBRATION FEEDBACK
   const vibrate = (ms) => { if (typeof navigator !== 'undefined' && navigator.vibrate) { try { navigator.vibrate(ms); } catch(_) {} } };
@@ -670,14 +717,20 @@
     settings: { theme: 'dark', currentEmpFilter: 'all' }
   };
 
+  const cloneInitialData = () => JSON.parse(JSON.stringify(INITIAL_DATA));
+  function normalizeData(raw) {
+    const data = raw && typeof raw === 'object' ? raw : cloneInitialData();
+    if (!Array.isArray(data.employees) || !data.employees.length) data.employees = cloneInitialData().employees;
+    if (!data.shifts || typeof data.shifts !== 'object') data.shifts = {};
+    if (!Array.isArray(data.personalNotes)) data.personalNotes = [];
+    data.settings = { ...INITIAL_DATA.settings, ...(data.settings || {}) };
+    return data;
+  }
+
   let DATA;
   try {
-    DATA = JSON.parse(safeStorage.get('PVZ_SCHEDULE_DATA')) || INITIAL_DATA;
-  } catch(_) { DATA = INITIAL_DATA; }
-  if (!DATA.employees?.length) DATA.employees = [...INITIAL_DATA.employees];
-  if (!DATA.shifts || typeof DATA.shifts !== 'object') DATA.shifts = {};
-  if (!Array.isArray(DATA.personalNotes)) DATA.personalNotes = [];
-  if (!DATA.settings) DATA.settings = { ...INITIAL_DATA.settings };
+    DATA = normalizeData(JSON.parse(safeStorage.get('PVZ_SCHEDULE_DATA')));
+  } catch(_) { DATA = cloneInitialData(); }
 
   let empMap = new Map(DATA.employees.map(e => [e.id, e]));
   const getEmp = (id) => empMap.get(id);
@@ -708,7 +761,10 @@
   const saveDelay = debounce(() => {
     try { safeStorage.set('PVZ_SCHEDULE_DATA', JSON.stringify(DATA)); } catch(_) {}
   }, 100);
-  function saveData() { statsCache = null; saveDelay(); }
+  function saveData(invalidateStats = true) {
+    if (invalidateStats) statsCache = null;
+    saveDelay();
+  }
 
   // DATE HELPERS
   let currentDate = new Date();
@@ -723,8 +779,9 @@
   }
 
   // THEME CONTROL
-  function applyTheme(th) {
-    DATA.settings.theme = th; saveData();
+  function applyTheme(th, persist = true) {
+    DATA.settings.theme = th;
+    if (persist) saveData(false);
     document.documentElement.setAttribute('data-theme', th);
   }
 
@@ -741,6 +798,8 @@
 
   // TACTILE RIPPLE FACTORY
   function attachRipple(el) {
+    if (!el || el.dataset.rippleReady === '1') return;
+    el.dataset.rippleReady = '1';
     el.style.position = 'relative';
     el.style.overflow = 'hidden';
     el.addEventListener('pointerdown', (e) => {
@@ -770,7 +829,7 @@
     if (e.target.classList.contains('modal')) {
       e.target.classList.remove('show');
       if (e.target.id === 'confirmModal') confirmResolver?.(false);
-      if (e.target.id === 'dayModal' || e.target.id === 'fillModal') { selectedDates = []; renderCalendarSelectionOnly(); }
+      if (e.target.id === 'dayModal' || e.target.id === 'fillModal') { selectedDates = []; selectedSet.clear(); renderCalendarSelectionOnly(); }
     }
   });
 
@@ -808,8 +867,8 @@
   $('empBar').addEventListener('click', (e) => {
     const chip = e.target.closest('.emp-chip'); if (!chip) return;
     vibrate(15);
-    DATA.settings.currentEmpFilter = chip.dataset.emp; saveData();
-    renderEmpBar(); renderCalendar(); renderStats(); renderSalary();
+    DATA.settings.currentEmpFilter = chip.dataset.emp; saveData(false);
+    requestRender('empBar', 'calendar', 'stats', 'salary');
   });
 
   // CALENDAR ENGINE
@@ -818,6 +877,7 @@
   let isDragging = false;
   let lastDraggedKey = null;
   let cellByKey = new Map();
+  let todayKeyCache = dayKey(new Date());
 
   const RU_MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
   const RU_MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
@@ -825,6 +885,7 @@
 
   function renderCalendar() {
     const grid = $('daysGrid'); const y = currentDate.getFullYear(); const m = currentDate.getMonth();
+    todayKeyCache = dayKey(new Date());
     $('monthTitle').textContent = `${RU_MONTHS[m]} ${y}`;
     const first = new Date(y, m, 1); let startDow = first.getDay() - 1; if (startDow < 0) startDow = 6;
     const total = new Date(y, m + 1, 0).getDate(); const prevTotal = new Date(y, m, 0).getDate();
@@ -850,6 +911,11 @@
     DATA.employees.forEach(e => empColorCache.set(e.id, e.color));
     DEFAULT_TEMPLATES.forEach(t => templateCache.set(t.id, t));
   }
+  function reindexEmployees(invalidateStats = false) {
+    empMap = new Map(DATA.employees.map(e => [e.id, e]));
+    updateCaches();
+    if (invalidateStats) statsCache = null;
+  }
   updateCaches();
   
   function createCell(date, isOther) {
@@ -857,7 +923,7 @@
     const k = dayKey(date); cell.dataset.date = k; cell.tabIndex = isOther ? -1 : 0;
     if (isOther) cell.classList.add('other-month');
     const dow = date.getDay(); if (dow === 0 || dow === 6) cell.classList.add('weekend');
-    const now = new Date(); if (date.getDate() === now.getDate() && date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()) cell.classList.add('today');
+    if (k === todayKeyCache) cell.classList.add('today');
 
     let inner = `<div class="day-circle"><span class="day-num">${date.getDate()}</span>`;
     let shifts = DATA.shifts[k] || [];
@@ -980,11 +1046,9 @@
       if (dragStartCell) onEnd();
     });
 
-    let touchActive = false;
     grid.addEventListener('touchstart', (e) => {
       const c = e.target.closest('.day');
       if (c) {
-        touchActive = true;
         const t = e.touches[0];
         onStart(c, t.clientX, t.clientY);
       }
@@ -1004,12 +1068,10 @@
     }, { passive: false });
 
     window.addEventListener('touchend', () => {
-      touchActive = false;
       if (dragStartCell) onEnd();
     });
 
     window.addEventListener('touchcancel', () => {
-      touchActive = false;
       dragStartCell = null;
       isDragging = false;
       selectedDates = [];
@@ -1058,7 +1120,7 @@
     const btn = e.target.closest('.ds-del'); if (!btn) return;
     vibrate(15);
     const idx = +btn.dataset.idx; const k = dayKey(activeModalDate); const s = DATA.shifts[k];
-    if (s) { s.splice(idx, 1); if (!s.length) delete DATA.shifts[k]; saveData(); renderDayModalShifts(); schedule(() => { renderCalendar(); renderStats(); renderSalary(); }); }
+    if (s) { s.splice(idx, 1); if (!s.length) delete DATA.shifts[k]; saveData(); renderDayModalShifts(); requestRender('calendar', 'stats', 'salary'); }
   });
 
   function renderModalShiftOptions() {
@@ -1083,7 +1145,7 @@
     DATA.shifts[k] = DATA.shifts[k].filter(s => s.empId !== empId);
     DATA.shifts[k].push({ empId, type: activeModalShiftType, start, end });
     vibrate([20, 40]); saveData(); $('dayModal').classList.remove('show');
-    schedule(() => { renderCalendar(); renderStats(); renderSalary(); });
+    requestRender('calendar', 'stats', 'salary');
     toast('Смена сохранена ✨');
   });
   $('modalCloseBtn').addEventListener('click', () => { $('dayModal').classList.remove('show'); selectedDates = []; selectedSet.clear(); renderCalendarSelectionOnly(); });
@@ -1129,7 +1191,7 @@
       }
     }
     vibrate([20, 50]); saveData(); $('fillModal').classList.remove('show'); selectedDates = []; selectedSet.clear();
-    schedule(() => { renderCalendar(); renderStats(); renderSalary(); });
+    requestRender('calendar', 'stats', 'salary');
     toast(`Добавлено смен: ${count}`);
   });
 
@@ -1211,7 +1273,8 @@
     if (s) l = l.filter(n => n.title?.toLowerCase().includes(s) || n.body?.toLowerCase().includes(s));
     if (!l.length) { box.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-dim);font-size:13px;">📝 ${s ? 'Ничего не найдено':'Заметок нет'}</div>`; return; }
 
-    box.innerHTML = l.map((n, i) =>
+    const ordered = l.slice().reverse();
+    box.innerHTML = ordered.map((n) =>
       `<div class="note-item" data-id="${escapeHTML(n.id)}" tabindex="0">
         <div class="note-item-top">
           <span class="note-item-title">${escapeHTML(n.title) || 'Без имени'}</span>
@@ -1219,7 +1282,7 @@
         </div>
         <div class="note-item-txt">${escapeHTML(n.body) || ''}</div>
       </div>`
-    ).reverse().join('');
+    ).join('');
   }
   $('notesList').addEventListener('click', (e) => {
     const item = e.target.closest('.note-item'); if (!item) return;
@@ -1253,14 +1316,14 @@
     } else {
       DATA.personalNotes.push({ id:'note_'+Date.now()+'_'+Math.random().toString(36).slice(2,5), title: t, body: b, date: dt });
     }
-    vibrate(15); saveData(); $('noteEditModal').classList.remove('show'); renderNotes(); toast('✓ Сохранено');
+    vibrate(15); saveData(false); $('noteEditModal').classList.remove('show'); renderNotes(); toast('✓ Сохранено');
   });
 
   $('noteModalDeleteBtn').addEventListener('click', async () => {
     const id = $('noteModalId').value; if (!id) return;
     const ok = await customConfirm('Удаление', 'Удалить эту заметку безвозвратно?'); if (!ok) return;
     DATA.personalNotes = DATA.personalNotes.filter(x => x.id !== id);
-    vibrate(20); saveData(); $('noteEditModal').classList.remove('show'); renderNotes(); toast('Удалено');
+    vibrate(20); saveData(false); $('noteEditModal').classList.remove('show'); renderNotes(); toast('Удалено');
   });
   $('notesSearchInput').addEventListener('input', debounce(renderNotes, 100));
 
@@ -1305,7 +1368,7 @@
     } else {
       DATA.personalNotes.push({ id:'note_'+Date.now()+'_'+Math.random().toString(36).slice(2,5), title: title, body: body, date: dt });
     }
-    vibrate(15); saveData(); neEditor.classList.remove('show'); renderNotes(); toast('✓ Сохранено');
+    vibrate(15); saveData(false); neEditor.classList.remove('show'); renderNotes(); toast('✓ Сохранено');
   });
 
   neBackBtn.addEventListener('click', function() {
@@ -1318,7 +1381,7 @@
     var ok = await customConfirm('Удаление', 'Удалить заметку безвозвратно?');
     if (!ok) return;
     DATA.personalNotes = DATA.personalNotes.filter(function(x) { return x.id !== id; });
-    vibrate(20); saveData(); neEditor.classList.remove('show'); renderNotes(); toast('Удалено');
+    vibrate(20); saveData(false); neEditor.classList.remove('show'); renderNotes(); toast('Удалено');
   });
 
   // Перенаправляем клик по заметке на полный редактор
@@ -1397,9 +1460,9 @@
     } else {
       DATA.employees.push({ id:'e_'+Date.now()+'_'+Math.random().toString(36).slice(2,5), name: nm, color: currentSelectColor, rate, rateType });
     }
-    empMap = new Map(DATA.employees.map(e => [e.id, e])); vibrate([15, 30]); saveData();
+    reindexEmployees(false); vibrate([15, 30]); saveData(false);
     $('empModal').classList.remove('show');
-    schedule(() => { renderEmpBar(); renderSettings(); renderCalendar(); renderStats(); renderSalary(); });
+    requestRender('empBar', 'settings', 'calendar', 'stats', 'salary');
     toast('Сотрудник сохранён');
   });
   $('empModalCancelBtn').addEventListener('click', () => $('empModal').classList.remove('show'));
@@ -1412,9 +1475,9 @@
     DATA.employees = DATA.employees.filter(e => e.id !== id);
     for (const k in DATA.shifts) { DATA.shifts[k] = DATA.shifts[k].filter(s => s.empId !== id); if (!DATA.shifts[k].length) delete DATA.shifts[k]; }
     if (DATA.settings.currentEmpFilter === id) DATA.settings.currentEmpFilter = 'all';
-    empMap = new Map(DATA.employees.map(e => [e.id, e])); vibrate(20); saveData();
+    reindexEmployees(true); vibrate(20); saveData();
     $('empModal').classList.remove('show');
-    schedule(() => { renderEmpBar(); renderSettings(); renderCalendar(); renderStats(); renderSalary(); });
+    requestRender('empBar', 'settings', 'calendar', 'stats', 'salary');
     toast('Сотрудник удалён');
   });
 
@@ -1431,63 +1494,256 @@
   }
 
 
-  // 📊 ЭКСПОРТ В EXCEL (универсальный — без внешних библиотек, CSV + XLSX)
-  $('excelExportBtn').addEventListener('click', function() {
-    try {
-      var y = currentDate.getFullYear();
-      var m = currentDate.getMonth();
-      var monthName = RU_MONTHS[m];
-      var rows = [];
-      
-      rows.push('"Отчёт: ПВЗ График","' + monthName + ' ' + y + '"');
-      rows.push('');
-      rows.push('"Сотрудник","Дней","Часов","Ставка","Начислено"');
-      
-      var total = 0;
-      for (var ei = 0; ei < DATA.employees.length; ei++) {
-        var e = DATA.employees[ei];
-        var st = getEmpMonthStats(e.id, y, m);
-        var earned = e.rateType === 'day' ? (st.days * (e.rate || 0)) : (st.hours * (e.rate || 0));
-        total += earned;
-        var rateLabel = (e.rate || 0) + (e.rateType === 'day' ? ' руб/смена' : ' руб/час');
-        rows.push('"' + e.name + '",' + st.days + ',' + st.hours + ',"' + rateLabel + '",' + earned);
+  // FILE EXPORT HELPERS — работают без внешних библиотек и подходят для WebView/APK
+  const EXPORT_MIME = {
+    xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    pdf: 'application/pdf',
+    json: 'application/json;charset=utf-8'
+  };
+
+  const fileStamp = () => `${currentDate.getFullYear()}_${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+  const xmlEscape = (v) => String(v ?? '')
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')
+    .replace(/[&<>"']/g, (c) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&apos;' }[c]));
+
+  function buildMonthlyReport() {
+    const y = currentDate.getFullYear();
+    const m = currentDate.getMonth();
+    const monthText = `${RU_MONTHS[m]} ${y}`;
+    let total = 0;
+
+    const employeeRows = DATA.employees.map((e) => {
+      const st = getEmpMonthStats(e.id, y, m);
+      const earned = e.rateType === 'day' ? (st.days * (e.rate || 0)) : (st.hours * (e.rate || 0));
+      total += earned;
+      return {
+        name: e.name,
+        color: e.color,
+        days: st.days,
+        hours: st.hours,
+        rate: e.rate || 0,
+        rateType: e.rateType === 'day' ? 'за смену' : 'в час',
+        earned
+      };
+    });
+
+    const shiftRows = [];
+    const sortedKeys = Object.keys(DATA.shifts).sort();
+    for (const k of sortedKeys) {
+      const d = parseKey(k);
+      if (d.getMonth() !== m || d.getFullYear() !== y) continue;
+      const shifts = DATA.shifts[k] || [];
+      for (const s of shifts) {
+        const emp = getEmp(s.empId);
+        const t = TEMPLATES_MAP[s.type] || DEFAULT_TEMPLATES[0];
+        shiftRows.push({
+          key: k,
+          date: d.toLocaleDateString('ru-RU'),
+          day: RU_DAYS[d.getDay()],
+          employee: emp ? emp.name : 'Удалён',
+          color: emp ? emp.color : '#94a3b8',
+          shift: t ? t.name : 'Смена',
+          icon: t ? t.icon : '',
+          start: s.start || '',
+          end: s.end || '',
+          hours: t ? t.hrs : 12
+        });
       }
-      
-      rows.push('');
-      rows.push('"ИТОГО",,,,' + total);
-      rows.push('');
-      rows.push('"Дата","Сотрудник","Смена","Время"');
-      
-      var sortedKeys = Object.keys(DATA.shifts).sort();
-      for (var si = 0; si < sortedKeys.length; si++) {
-        var k = sortedKeys[si];
-        var d = parseKey(k);
-        if (d.getMonth() === m && d.getFullYear() === y) {
-          var shifts = DATA.shifts[k];
-          for (var sji = 0; sji < shifts.length; sji++) {
-            var s = shifts[sji];
-            var emp = getEmp(s.empId);
-            var t = TEMPLATES_MAP[s.type];
-            rows.push('"' + k + '","' + (emp ? emp.name : '—') + '","' + (t ? t.name : '—') + '","' + (s.start||'—') + ' - ' + (s.end||'—') + '"');
-          }
+    }
+
+    return { year: y, month: m, monthText, total, employeeRows, shiftRows };
+  }
+
+  function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result).split(',')[1] || '');
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  async function tryNativeSave(blob, filename, mime) {
+    const bridges = [window.AndroidApp, window.Android, window.App].filter(Boolean);
+    const methods = ['saveFile', 'downloadFile', 'saveBase64File', 'shareFile'];
+    for (const bridge of bridges) {
+      for (const method of methods) {
+        if (typeof bridge[method] !== 'function') continue;
+        try {
+          const base64 = await blobToBase64(blob);
+          bridge[method](filename, base64, mime);
+          return true;
+        } catch(err) {
+          console.warn(`[Export] Native bridge ${method} failed:`, err);
         }
       }
-      
-      // Создаём CSV с BOM для корректной кодировки
-      var csvContent = '\uFEFF' + rows.join('\n');
-      var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      var link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'pvz_graphik_' + y + '_' + (m+1) + '.csv';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(link.href);
-      toast('📊 Excel-совместимый CSV скачан!');
-      vibrate(15);
+    }
+    return false;
+  }
+
+  async function saveBlobToDevice(blob, filename, mime) {
+    // 1) Если APK-конвертер добавил JS bridge — используем его.
+    if (await tryNativeSave(blob, filename, mime)) return true;
+
+    // 2) Desktop Chrome/Edge: системное окно «Сохранить как».
+    if (window.showSaveFilePicker) {
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: filename,
+          types: [{ description: filename.split('.').pop()?.toUpperCase() || 'File', accept: { [mime]: ['.' + filename.split('.').pop()] } }]
+        });
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+        return true;
+      } catch(err) {
+        if (err && err.name === 'AbortError') throw err;
+        console.warn('[Export] showSaveFilePicker failed:', err);
+      }
+    }
+
+    // 3) Универсальная загрузка через Blob URL. Не отзываем ссылку сразу — WebView часто не успевает скачать файл.
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.rel = 'noopener';
+    link.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;';
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => { try { link.remove(); URL.revokeObjectURL(url); } catch(_) {} }, 60000);
+    return true;
+  }
+
+  // Минимальный ZIP writer для настоящего XLSX без библиотек
+  const CRC_TABLE = (() => {
+    const table = new Uint32Array(256);
+    for (let i = 0; i < 256; i++) {
+      let c = i;
+      for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      table[i] = c >>> 0;
+    }
+    return table;
+  })();
+  function strBytes(s) {
+    s = String(s);
+    if (typeof TextEncoder !== 'undefined') return new TextEncoder().encode(s);
+    const utf8 = unescape(encodeURIComponent(s));
+    const out = new Uint8Array(utf8.length);
+    for (let i = 0; i < utf8.length; i++) out[i] = utf8.charCodeAt(i);
+    return out;
+  }
+  const u16 = (n) => new Uint8Array([n & 255, (n >>> 8) & 255]);
+  const u32 = (n) => new Uint8Array([n & 255, (n >>> 8) & 255, (n >>> 16) & 255, (n >>> 24) & 255]);
+  function concatBytes(parts) {
+    const total = parts.reduce((sum, p) => sum + p.length, 0);
+    const out = new Uint8Array(total);
+    let offset = 0;
+    for (const p of parts) { out.set(p, offset); offset += p.length; }
+    return out;
+  }
+  function crc32(bytes) {
+    let crc = 0xFFFFFFFF;
+    for (let i = 0; i < bytes.length; i++) crc = CRC_TABLE[(crc ^ bytes[i]) & 255] ^ (crc >>> 8);
+    return (crc ^ 0xFFFFFFFF) >>> 0;
+  }
+  function zipDateTime() {
+    const d = new Date();
+    const time = (d.getHours() << 11) | (d.getMinutes() << 5) | Math.floor(d.getSeconds() / 2);
+    const date = ((Math.max(1980, d.getFullYear()) - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+    return { date, time };
+  }
+  function createZipBlob(files, mime) {
+    const localParts = [];
+    const centralParts = [];
+    const { date, time } = zipDateTime();
+    let offset = 0;
+
+    for (const file of files) {
+      const name = strBytes(file.name);
+      const data = typeof file.data === 'string' ? strBytes(file.data) : file.data;
+      const crc = crc32(data);
+      const localHeader = concatBytes([
+        u32(0x04034b50), u16(20), u16(0x0800), u16(0), u16(time), u16(date),
+        u32(crc), u32(data.length), u32(data.length), u16(name.length), u16(0), name
+      ]);
+      localParts.push(localHeader, data);
+      centralParts.push(concatBytes([
+        u32(0x02014b50), u16(20), u16(20), u16(0x0800), u16(0), u16(time), u16(date),
+        u32(crc), u32(data.length), u32(data.length), u16(name.length), u16(0), u16(0),
+        u16(0), u16(0), u32(0), u32(offset), name
+      ]));
+      offset += localHeader.length + data.length;
+    }
+
+    const centralSize = centralParts.reduce((sum, p) => sum + p.length, 0);
+    const end = concatBytes([
+      u32(0x06054b50), u16(0), u16(0), u16(files.length), u16(files.length),
+      u32(centralSize), u32(offset), u16(0)
+    ]);
+    return new Blob([...localParts, ...centralParts, end], { type: mime });
+  }
+
+  function excelCol(n) {
+    let s = '';
+    while (n > 0) { const r = (n - 1) % 26; s = String.fromCharCode(65 + r) + s; n = Math.floor((n - 1) / 26); }
+    return s;
+  }
+  function sheetXml(rows, widths = []) {
+    const cols = widths.length ? `<cols>${widths.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join('')}</cols>` : '';
+    const body = rows.map((row, rIdx) => {
+      const r = rIdx + 1;
+      const cells = row.map((value, cIdx) => {
+        const ref = `${excelCol(cIdx + 1)}${r}`;
+        if (typeof value === 'number' && Number.isFinite(value)) return `<c r="${ref}"><v>${value}</v></c>`;
+        return `<c r="${ref}" t="inlineStr"><is><t xml:space="preserve">${xmlEscape(value)}</t></is></c>`;
+      }).join('');
+      return `<row r="${r}">${cells}</row>`;
+    }).join('');
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">${cols}<sheetData>${body}</sheetData></worksheet>`;
+  }
+  function createXlsxBlob(report) {
+    const summaryRows = [
+      ['Отчёт: ПВЗ График', report.monthText],
+      [],
+      ['Сотрудник', 'Дней', 'Часов', 'Ставка', 'Тип ставки', 'Начислено'],
+      ...report.employeeRows.map((r) => [r.name, r.days, r.hours, r.rate, r.rateType, r.earned]),
+      [],
+      ['ИТОГО', '', '', '', '', report.total]
+    ];
+    const shiftRows = [
+      ['Дата', 'День недели', 'Сотрудник', 'Смена', 'Начало', 'Конец', 'Часов'],
+      ...report.shiftRows.map((r) => [r.date, r.day, r.employee, r.shift, r.start, r.end, r.hours])
+    ];
+
+    const files = [
+      { name: '[Content_Types].xml', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>` },
+      { name: '_rels/.rels', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>` },
+      { name: 'xl/workbook.xml', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Отчёт" sheetId="1" r:id="rId1"/><sheet name="Смены" sheetId="2" r:id="rId2"/></sheets></workbook>` },
+      { name: 'xl/_rels/workbook.xml.rels', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/></Relationships>` },
+      { name: 'xl/worksheets/sheet1.xml', data: sheetXml(summaryRows, [24, 10, 10, 12, 14, 14]) },
+      { name: 'xl/worksheets/sheet2.xml', data: sheetXml(shiftRows, [14, 16, 22, 16, 10, 10, 10]) }
+    ];
+    return createZipBlob(files, EXPORT_MIME.xlsx);
+  }
+
+  // 📊 ЭКСПОРТ В НАСТОЯЩИЙ EXCEL (.xlsx)
+  $('excelExportBtn').addEventListener('click', async function() {
+    try {
+      vibrate(10);
+      const report = buildMonthlyReport();
+      const blob = createXlsxBlob(report);
+      const filename = `pvz_graphik_${fileStamp()}.xlsx`;
+      await saveBlobToDevice(blob, filename, EXPORT_MIME.xlsx);
+      toast(`📊 Excel-файл создан: ${filename}`);
     } catch(err) {
       console.error(err);
-      toast('❌ Ошибка: ' + err.message);
+      toast(err?.name === 'AbortError' ? 'Экспорт отменён' : '❌ Ошибка Excel: ' + (err?.message || err));
     }
   });
 
@@ -1517,122 +1773,217 @@
     const ok = await copyToClipboard(s); toast(ok ? '📋 Отчёт скопирован!' : '❌ Не удалось скопировать отчёт');
   });
 
-  // 📤 ПЕЧАТЬ PDF (автоматически переключается на календарь)
-  $('exportBtn').addEventListener('click', function() {
-    vibrate(10);
-    // Переключаемся на календарь
-    switchView('schedule');
-    var monthText = $('monthTitle').textContent;
-    // Ждём рендеринга календаря
-    setTimeout(function() {
-      try {
-        // Метод 1: через iframe — гарантированно работает в WebView
-        var iframe = document.createElement('iframe');
-        iframe.style.position = 'fixed';
-        iframe.style.width = '0';
-        iframe.style.height = '0';
-        iframe.style.top = '-9999px';
-        iframe.style.left = '-9999px';
-        document.body.appendChild(iframe);
-        var doc = iframe.contentWindow || iframe.contentDocument;
-        if (doc.document) doc = doc.document;
-        doc.open();
-        doc.write('<!DOCTYPE html><html><head><title>ПВЗ График — ' + monthText + '</title>');
-        doc.write('<meta charset="UTF-8">');
-        doc.write('<style>');
-        doc.write('body{font-family:Arial,sans-serif;padding:20px;color:#000;}');
-        doc.write('h1{font-size:20px;margin-bottom:5px;}');
-        doc.write('h2{font-size:14px;margin-top:15px;margin-bottom:5px;color:#333;}');
-        doc.write('table{width:100%;border-collapse:collapse;margin:5px 0;font-size:12px;}');
-        doc.write('td,th{border:1px solid #ccc;padding:4px 6px;text-align:center;}');
-        doc.write('th{background:#f0f0f0;}');
-        doc.write('.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;}');
-        doc.write('.day-cell{padding:8px;border:1px solid #ddd;}');
-        doc.write('.week-header{background:#eee;font-weight:bold;}');
-        doc.write('@media print{@page{size:A4 portrait;margin:10mm;}}');
-        doc.write('</style>');
-        doc.write('</head><body>');
-        doc.write('<h1>📊 ПВЗ График — ' + monthText + '</h1>');
-        doc.write('<p style="color:#888;font-size:11px;">Создано: ' + new Date().toLocaleDateString('ru-RU') + '</p><hr>');
-        
-        // Календарь в виде таблицы
-        // Получаем дни месяца
-        var y = currentDate.getFullYear();
-        var m = currentDate.getMonth();
-        var first = new Date(y, m, 1);
-        var total = new Date(y, m + 1, 0).getDate();
-        var startDow = first.getDay() - 1;
-        if (startDow < 0) startDow = 6;
-        
-        doc.write('<table>');
-        doc.write('<tr><th>Пн</th><th>Вт</th><th>Ср</th><th>Чт</th><th>Пт</th><th style="color:red">Сб</th><th style="color:red">Вс</th></tr>');
-        
-        var day = 1;
-        for (var row = 0; row < 6; row++) {
-          if (day > total) break;
-          doc.write('<tr>');
-          for (var col = 0; col < 7; col++) {
-            if ((row === 0 && col < startDow) || day > total) {
-              doc.write('<td></td>');
-            } else {
-              var k = y + '-' + String(m+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
-              var shifts = DATA.shifts[k] || [];
-              var empNames = [];
-              for (var si = 0; si < shifts.length; si++) {
-                var emp = getEmp(shifts[si].empId);
-                if (emp) empNames.push(emp.name);
-              }
-              var label = day;
-              if (empNames.length) label += '\n' + empNames.join(', ');
-              doc.write('<td>' + day + (empNames.length ? '<br><small>' + empNames.join(', ') + '</small>' : '') + '</td>');
-              day++;
-            }
-          }
-          doc.write('</tr>');
+  // PDF EXPORT: создаём реальный .pdf-файл через canvas → JPEG → PDF, без print() и внешних библиотек
+  function fitText(ctx, text, x, y, maxWidth) {
+    text = String(text ?? '');
+    if (ctx.measureText(text).width <= maxWidth) { ctx.fillText(text, x, y); return; }
+    let out = text;
+    while (out.length > 1 && ctx.measureText(out + '…').width > maxWidth) out = out.slice(0, -1);
+    ctx.fillText(out + '…', x, y);
+  }
+  function drawPdfPageHeader(ctx, report, pageNo) {
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 1240, 1754);
+    ctx.fillStyle = '#111827'; ctx.font = '700 34px Arial, sans-serif';
+    ctx.fillText(`ПВЗ График — ${report.monthText}`, 70, 76);
+    ctx.fillStyle = '#64748b'; ctx.font = '18px Arial, sans-serif';
+    ctx.fillText(`Создано: ${new Date().toLocaleDateString('ru-RU')}  •  Страница ${pageNo}`, 70, 108);
+    ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(70, 132); ctx.lineTo(1170, 132); ctx.stroke();
+  }
+  function drawPdfFooter(ctx) {
+    ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(70, 1692); ctx.lineTo(1170, 1692); ctx.stroke();
+    ctx.fillStyle = '#94a3b8'; ctx.font = '16px Arial, sans-serif';
+    ctx.fillText('Приложение «ПВЗ График»', 70, 1724);
+  }
+  function createPdfCanvasPages(report) {
+    const pages = [];
+    let canvas, ctx, y, pageNo = 0;
+    const bottom = 1660;
+
+    function newPage() {
+      if (ctx) drawPdfFooter(ctx);
+      canvas = document.createElement('canvas');
+      canvas.width = 1240; canvas.height = 1754;
+      ctx = canvas.getContext('2d');
+      pageNo++;
+      drawPdfPageHeader(ctx, report, pageNo);
+      y = 165;
+      pages.push(canvas);
+    }
+    function ensure(h) { if (y + h > bottom) newPage(); }
+    function sectionTitle(title) {
+      ensure(54);
+      ctx.fillStyle = '#111827'; ctx.font = '700 24px Arial, sans-serif';
+      ctx.fillText(title, 70, y + 24);
+      y += 44;
+    }
+    function tableHeader(labels, widths) {
+      ensure(42);
+      let x = 70;
+      ctx.fillStyle = '#f1f5f9'; ctx.fillRect(70, y, widths.reduce((a,b)=>a+b,0), 38);
+      ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1;
+      ctx.fillStyle = '#334155'; ctx.font = '700 16px Arial, sans-serif';
+      labels.forEach((label, i) => { ctx.strokeRect(x, y, widths[i], 38); fitText(ctx, label, x + 8, y + 24, widths[i] - 16); x += widths[i]; });
+      y += 38;
+    }
+    function tableRow(values, widths, opts = {}) {
+      ensure(38);
+      let x = 70;
+      ctx.fillStyle = opts.bg || '#ffffff'; ctx.fillRect(70, y, widths.reduce((a,b)=>a+b,0), 38);
+      ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
+      ctx.font = opts.bold ? '700 16px Arial, sans-serif' : '16px Arial, sans-serif';
+      ctx.fillStyle = opts.color || '#111827';
+      values.forEach((value, i) => { ctx.strokeRect(x, y, widths[i], 38); fitText(ctx, value, x + 8, y + 24, widths[i] - 16); x += widths[i]; });
+      y += 38;
+    }
+
+    newPage();
+
+    sectionTitle('Календарь смен');
+    const y0 = y;
+    const x0 = 70;
+    const calW = 1100;
+    const colW = calW / 7;
+    const rowH = 116;
+    const headerH = 34;
+    const week = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+    ctx.font = '700 16px Arial, sans-serif';
+    for (let i = 0; i < 7; i++) {
+      ctx.fillStyle = i > 4 ? '#fee2e2' : '#f1f5f9';
+      ctx.fillRect(x0 + i * colW, y, colW, headerH);
+      ctx.strokeStyle = '#cbd5e1'; ctx.strokeRect(x0 + i * colW, y, colW, headerH);
+      ctx.fillStyle = i > 4 ? '#dc2626' : '#334155';
+      ctx.fillText(week[i], x0 + i * colW + 12, y + 23);
+    }
+    y += headerH;
+
+    const first = new Date(report.year, report.month, 1);
+    let startDow = first.getDay() - 1; if (startDow < 0) startDow = 6;
+    const totalDays = new Date(report.year, report.month + 1, 0).getDate();
+    const rowsCount = Math.ceil((startDow + totalDays) / 7);
+    let day = 1;
+    for (let r = 0; r < rowsCount; r++) {
+      for (let c = 0; c < 7; c++) {
+        const x = x0 + c * colW;
+        const cy = y + r * rowH;
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(x, cy, colW, rowH);
+        ctx.strokeStyle = '#e2e8f0'; ctx.strokeRect(x, cy, colW, rowH);
+        if ((r === 0 && c < startDow) || day > totalDays) continue;
+
+        const k = `${report.year}-${String(report.month + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        ctx.fillStyle = '#111827'; ctx.font = '700 18px Arial, sans-serif'; ctx.fillText(String(day), x + 10, cy + 24);
+        const shifts = DATA.shifts[k] || [];
+        let lineY = cy + 48;
+        ctx.font = '14px Arial, sans-serif';
+        for (let si = 0; si < Math.min(shifts.length, 4); si++) {
+          const s = shifts[si]; const emp = getEmp(s.empId); const t = TEMPLATES_MAP[s.type] || DEFAULT_TEMPLATES[0];
+          ctx.fillStyle = emp ? emp.color : '#94a3b8'; ctx.beginPath(); ctx.arc(x + 14, lineY - 4, 5, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#334155'; fitText(ctx, `${emp ? emp.name : 'Удалён'} ${t.name}`, x + 26, lineY, colW - 34);
+          lineY += 18;
         }
-        doc.write('</table><hr>');
-        
-        // Статистика
-        doc.write('<h2>📈 Статистика</h2>');
-        doc.write('<table><tr><th>Сотрудник</th><th>Дней</th><th>Часов</th><th>Начислено</th></tr>');
-        var totalSum = 0;
-        for (var ei = 0; ei < DATA.employees.length; ei++) {
-          var e = DATA.employees[ei];
-          var st = getEmpMonthStats(e.id, y, m);
-          var earned = e.rateType === 'day' ? (st.days * (e.rate || 0)) : (st.hours * (e.rate || 0));
-          totalSum += earned;
-          doc.write('<tr><td>' + e.name + '</td><td>' + st.days + '</td><td>' + st.hours + '</td><td><strong>' + earned.toLocaleString('ru-RU') + ' ₽</strong></td></tr>');
-        }
-        doc.write('<tr style="background:#f5f5f5"><td><strong>ИТОГО</strong></td><td></td><td></td><td><strong>' + totalSum.toLocaleString('ru-RU') + ' ₽</strong></td></tr>');
-        doc.write('</table>');
-        
-        doc.write('<p style="color:#888;font-size:10px;text-align:center;margin-top:30px;">Приложение «График Смен» — ПВЗ График</p>');
-        doc.write('</body></html>');
-        doc.close();
-        
-        // Ждём загрузки iframe и печатаем
-        setTimeout(function() {
-          try {
-            iframe.contentWindow.focus();
-            iframe.contentWindow.print();
-          } catch(e) {}
-          setTimeout(function() { if (document.body.contains(iframe)) document.body.removeChild(iframe); }, 2000);
-        }, 300);
-        toast('🖨️ Подготовка PDF...');
-      } catch(err) {
-        console.error(err);
-        toast('❌ Ошибка печати');
+        if (shifts.length > 4) { ctx.fillStyle = '#64748b'; ctx.fillText(`+ ещё ${shifts.length - 4}`, x + 10, lineY); }
+        day++;
       }
-    }, 200);
+    }
+    y = y0 + headerH + rowsCount * rowH + 34;
+
+    sectionTitle('Статистика и зарплата');
+    const statW = [310, 110, 110, 190, 160, 220];
+    tableHeader(['Сотрудник', 'Дней', 'Часов', 'Ставка', 'Тип', 'Начислено'], statW);
+    report.employeeRows.forEach((r, i) => tableRow([
+      r.name, r.days, r.hours, `${r.rate.toLocaleString('ru-RU')} ₽`, r.rateType, `${r.earned.toLocaleString('ru-RU')} ₽`
+    ], statW, { bg: i % 2 ? '#fafafa' : '#ffffff' }));
+    tableRow(['ИТОГО', '', '', '', '', `${report.total.toLocaleString('ru-RU')} ₽`], statW, { bold: true, bg: '#ecfdf5', color: '#047857' });
+
+    sectionTitle('Подробный список смен');
+    const shiftW = [130, 180, 260, 180, 130, 110, 110];
+    tableHeader(['Дата', 'День', 'Сотрудник', 'Смена', 'Время', 'Часы', ''], shiftW);
+    if (!report.shiftRows.length) {
+      tableRow(['Нет назначенных смен в этом месяце', '', '', '', '', '', ''], shiftW);
+    } else {
+      report.shiftRows.forEach((r, i) => {
+        if (y + 76 > bottom) {
+          newPage();
+          sectionTitle('Подробный список смен — продолжение');
+          tableHeader(['Дата', 'День', 'Сотрудник', 'Смена', 'Время', 'Часы', ''], shiftW);
+        }
+        tableRow([r.date, r.day, r.employee, r.shift, `${r.start}–${r.end}`, r.hours, ''], shiftW, { bg: i % 2 ? '#fafafa' : '#ffffff' });
+      });
+    }
+
+    drawPdfFooter(ctx);
+    return pages;
+  }
+
+  function dataUrlBytes(dataUrl) {
+    const b64 = dataUrl.split(',')[1] || '';
+    const raw = atob(b64);
+    const out = new Uint8Array(raw.length);
+    for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+    return out;
+  }
+  function makePdfFromJpegs(jpegs, pageWidth = 595.28, pageHeight = 841.89) {
+    const parts = [];
+    const offsets = [];
+    let len = 0;
+    const add = (data) => { const bytes = typeof data === 'string' ? strBytes(data) : data; parts.push(bytes); len += bytes.length; };
+    const addObjStart = (n) => { offsets[n] = len; add(`${n} 0 obj\n`); };
+    const maxObj = 2 + jpegs.length * 3;
+    const pageInfos = jpegs.map((_, i) => ({ img: 3 + i * 3, content: 4 + i * 3, page: 5 + i * 3 }));
+
+    add('%PDF-1.4\n%PVZ Graphik\n');
+    addObjStart(1); add('<< /Type /Catalog /Pages 2 0 R >>\nendobj\n');
+    addObjStart(2); add(`<< /Type /Pages /Count ${jpegs.length} /Kids [${pageInfos.map(p => `${p.page} 0 R`).join(' ')}] >>\nendobj\n`);
+
+    jpegs.forEach((imgBytes, i) => {
+      const info = pageInfos[i];
+      addObjStart(info.img);
+      add(`<< /Type /XObject /Subtype /Image /Width 1240 /Height 1754 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${imgBytes.length} >>\nstream\n`);
+      add(imgBytes); add('\nendstream\nendobj\n');
+
+      const content = `q\n${pageWidth} 0 0 ${pageHeight} 0 0 cm\n/Im${i + 1} Do\nQ`;
+      addObjStart(info.content); add(`<< /Length ${strBytes(content).length} >>\nstream\n${content}\nendstream\nendobj\n`);
+
+      addObjStart(info.page);
+      add(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Resources << /XObject << /Im${i + 1} ${info.img} 0 R >> >> /Contents ${info.content} 0 R >>\nendobj\n`);
+    });
+
+    const xrefAt = len;
+    add(`xref\n0 ${maxObj + 1}\n0000000000 65535 f \n`);
+    for (let i = 1; i <= maxObj; i++) add(`${String(offsets[i] || 0).padStart(10, '0')} 00000 n \n`);
+    add(`trailer\n<< /Size ${maxObj + 1} /Root 1 0 R >>\nstartxref\n${xrefAt}\n%%EOF`);
+    return new Blob(parts, { type: EXPORT_MIME.pdf });
+  }
+  async function createPdfBlob(report) {
+    const pages = createPdfCanvasPages(report);
+    const jpegs = pages.map((canvas) => dataUrlBytes(canvas.toDataURL('image/jpeg', 0.92)));
+    return makePdfFromJpegs(jpegs);
+  }
+
+  // 📤 СКАЧАТЬ PDF-ФАЙЛ
+  $('exportBtn').addEventListener('click', async function() {
+    try {
+      vibrate(10);
+      switchView('schedule');
+      toast('📄 Создаю PDF...');
+      await new Promise((resolve) => setTimeout(resolve, 80));
+      const report = buildMonthlyReport();
+      const blob = await createPdfBlob(report);
+      const filename = `pvz_graphik_${fileStamp()}.pdf`;
+      await saveBlobToDevice(blob, filename, EXPORT_MIME.pdf);
+      toast(`📄 PDF-файл создан: ${filename}`);
+    } catch(err) {
+      console.error(err);
+      toast(err?.name === 'AbortError' ? 'Экспорт отменён' : '❌ Ошибка PDF: ' + (err?.message || err));
+    }
   });
 
-  $('exportJsonBtn').addEventListener('click', () => {
+  $('exportJsonBtn').addEventListener('click', async () => {
     try {
-      const b = new Blob([JSON.stringify(DATA, null, 2)], { type: 'application/json' });
-      const lnk = document.createElement('a'); lnk.href = URL.createObjectURL(b); lnk.download = `pvz_backup_${dayKey(new Date())}.json`;
-      document.body.appendChild(lnk); lnk.click(); document.body.removeChild(lnk);
-      toast('💾 Файл резервной копии скачан');
-    } catch(_) { toast('Ошибка экспорта'); }
+      const filename = `pvz_backup_${dayKey(new Date())}.json`;
+      const b = new Blob([JSON.stringify(DATA, null, 2)], { type: EXPORT_MIME.json });
+      await saveBlobToDevice(b, filename, EXPORT_MIME.json);
+      toast(`💾 Бэкап создан: ${filename}`);
+    } catch(err) { toast(err?.name === 'AbortError' ? 'Экспорт отменён' : 'Ошибка экспорта'); }
   });
 
   $('importBtn').addEventListener('click', () => {
@@ -1646,10 +1997,11 @@
         try {
           const parsed = JSON.parse(evt.target.result);
           if (!parsed.employees || typeof parsed.shifts !== 'object') { toast('❌ Неверный формат бэкапа'); return; }
-          DATA = parsed; if (!Array.isArray(DATA.personalNotes)) DATA.personalNotes = [];
-          empMap = new Map(DATA.employees.map(e => [e.id, e])); saveData();
-          applyTheme(DATA.settings.theme || 'dark');
-          renderEmpBar(); renderCalendar(); renderStats(); renderSalary(); renderSettings();
+          DATA = normalizeData(parsed);
+          reindexEmployees(true);
+          applyTheme(DATA.settings.theme || 'dark', false);
+          saveData();
+          requestRender('empBar', 'settings', 'calendar', 'stats', 'salary');
           toast('✓ Данные импортированы');
         } catch(_) { toast('❌ Ошибка чтения файла'); }
       };
@@ -1661,16 +2013,16 @@
   $('clearAllDataBtn').addEventListener('click', async () => {
     const ok = await customConfirm('Внимание! Сбросить все данные?', 'Все сотрудники, смены, настройки и личные заметки будут окончательно очищены.');
     if (!ok) return;
-    safeStorage.remove('PVZ_SCHEDULE_DATA'); DATA = JSON.parse(JSON.stringify(INITIAL_DATA));
-    empMap = new Map(DATA.employees.map(e => [e.id, e])); statsCache = null; applyTheme('dark');
-    renderEmpBar(); renderCalendar(); renderStats(); renderSalary(); renderSettings();
+    safeStorage.remove('PVZ_SCHEDULE_DATA'); DATA = cloneInitialData();
+    reindexEmployees(true); applyTheme('dark', false); saveData();
+    requestRender('empBar', 'settings', 'calendar', 'stats', 'salary');
     toast('✓ Все данные сброшены');
   });
 
   // MONTH NAVIGATION INTERFACE
-  $('prevMonthBtn').addEventListener('click', () => { currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1); vibrate(10); schedule(() => { renderCalendar(); renderStats(); renderSalary(); }); });
-  $('nextMonthBtn').addEventListener('click', () => { currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1); vibrate(10); schedule(() => { renderCalendar(); renderStats(); renderSalary(); }); });
-  $('todayBtn').addEventListener('click', () => { currentDate = new Date(); vibrate(15); schedule(() => { renderCalendar(); renderStats(); renderSalary(); }); });
+  $('prevMonthBtn').addEventListener('click', () => { currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1); vibrate(10); requestRender('calendar', 'stats', 'salary'); });
+  $('nextMonthBtn').addEventListener('click', () => { currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1); vibrate(10); requestRender('calendar', 'stats', 'salary'); });
+  $('todayBtn').addEventListener('click', () => { currentDate = new Date(); vibrate(15); requestRender('calendar', 'stats', 'salary'); });
 
   (() => {
     let sx = 0, sy = 0, t0 = 0, track = false;
@@ -1686,178 +2038,376 @@
     });
   })();
 
-  // INTERACTIVE WALKTHROUGH TOUR ENGINE
+  // INTERACTIVE TOUR ENGINE — короткий, плавный и не навязчивый
+  const TOUR_DONE_KEY = 'PVZ_TOUR_COMPLETED_V3';
+  const TOUR_LEGACY_DONE_KEY = 'PVZ_TOUR_COMPLETED_V2';
+  const TOUR_NUDGE_KEY = 'PVZ_TOUR_NUDGE_CLOSED_V3';
   let currentStepIndex = 0;
+  let tourActive = false;
+  let tourTarget = null;
+  let tourLayoutQueued = false;
+  let tourTimers = [];
+  let tourPopoverTimer = null;
+
+  const prefersReducedMotion = () => !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
   const tourSteps = [
     {
-      title: "Добро пожаловать в ПВЗ График! 👋",
-      body: "Это умный помощник планирования смен, ведения заметок и автоматического подсчёта заработной платы вашей команды. Пройдем по всем пунктам!",
-      action() { switchView('schedule'); }
+      view: 'schedule',
+      title: 'Быстрый старт за 1 минуту 👋',
+      body: 'Покажу только главное: как ставить смены, быстро заполнять график, смотреть зарплату, вести заметки и делать бэкапы.',
+      hint: 'Тур можно в любой момент закрыть и снова открыть кнопкой 🎓.'
     },
     {
-      targetSelector: "#calendar",
-      title: "Интерактивный календарь 📅",
-      body: "Главный блок. Нажмите на любой день для изменения смен менеджеров. Либо <strong>проведите пальцем (drag-выделение)</strong> по диапазону дат для быстрого массового заполнения за пару нажатий!",
-      action() { switchView('schedule'); }
+      view: 'schedule',
+      targetSelector: '#calendar',
+      title: 'Календарь смен 📅',
+      body: 'Нажмите на день, чтобы добавить или изменить смену. Цвет круга показывает сотрудника, а значок — тип смены.',
+      hint: 'Если в один день работает несколько человек, ячейка станет многоцветной.'
     },
     {
-      targetSelector: "#empBar",
-      title: "Фильтр по сотрудникам 👥",
-      body: "Переключайтесь между сотрудниками в один тап. Клик по аватару отобразит только его смены и перестроит статистику. <strong>Все графики</strong> вернёт общую картину.",
-      action() { switchView('schedule'); }
+      view: 'schedule',
+      targetSelector: '.drag-mode-hint',
+      title: 'Массовое заполнение жестом ⚡',
+      body: 'Проведите пальцем или мышью по нескольким датам — откроется быстрое заполнение выбранного диапазона.',
+      hint: 'Поддерживаются шаблоны 2/2, 3/3, 5/2 и через день.'
     },
     {
-      targetSelector: "#legendGrid",
-      title: "Типы смен и шаблоны ☀️",
-      body: "Шаблоны работы: <strong>Полная смена (12ч)</strong>, <strong>Утренний выход (6ч)</strong> или <strong>Вечерний выход (6ч)</strong>. Смены накладываются друг на друга в одной ячейке в виде цветных кругов.",
-      action() { switchView('schedule'); }
+      view: 'schedule',
+      targetSelector: '#empBar',
+      title: 'Фильтр по сотрудникам 👥',
+      body: 'Выберите сотрудника сверху, чтобы увидеть только его график, часы и зарплату. Кнопка «Все графики» возвращает общий вид.',
+      hint: 'Этот же фильтр используется для быстрого заполнения смен.'
     },
     {
-      targetSelector: "#salaryChartSection",
-      title: "Аналитика & Зарплатная диаграмма 📊",
-      body: "Сумма отработанных дней, часов и зарплата считаются в реальном времени по персональным тарифам. Справа автоматически отрисовывается цветная SVG круговая диаграмма распределения затрат фонда.",
-      action() { switchView('schedule'); }
+      view: 'schedule',
+      targetSelector: '.salary-card',
+      title: 'Зарплата считается автоматически 💵',
+      body: 'Приложение само суммирует дни, часы и начисления по ставкам сотрудников. Диаграмма показывает распределение выплат.',
+      hint: 'Ставку можно задать почасовую или за смену в настройках сотрудника.'
     },
     {
-      targetSelector: ".topbar-actions",
-      title: "Быстрые текстовые отчеты & PDF 📄",
-      body: "Иконка 📄 мгновенно копирует красивый структурированный текстовый отчёт за текущий месяц для вставки в рабочий чат (Telegram/WhatsApp). Иконка 📤 подготавливает лист к печати или сохранению в PDF.",
-      action() { switchView('schedule'); }
+      view: 'schedule',
+      targetSelector: '.topbar-actions',
+      title: 'Отчёты и экспорт 📄',
+      body: 'Верхние кнопки копируют текстовый отчёт, скачивают настоящий Excel-файл .xlsx и создают PDF-файл отчёта.',
+      hint: 'CSV открывается в Excel, Google Таблицах и других редакторах таблиц.'
     },
     {
-      targetSelector: "#viewNotes",
-      title: "Раздел 'Личные заметки' 📝",
-      body: "Мы перешли в меню личных заметок. Они используются сотрудниками ПВЗ для фиксации инвентаризаций, контактов техподдержки, спорных вопросов, записей о посылкам.",
-      action() { switchView('notes'); }
+      view: 'notes',
+      targetSelector: '#viewNotes',
+      title: 'Заметки внутри приложения 📝',
+      body: 'Храните контакты, спорные посылки, инвентаризации и любые рабочие записи офлайн на устройстве.',
+      hint: 'Поиск работает сразу по заголовку и тексту заметки.'
     },
     {
-      targetSelector: "#addNoteFabBtn",
-      title: "Кнопка создания новой заметки ➕",
-      body: "Используйте эту плавающую красную круглую кнопку для быстрого сохранения любой информации. Всё записывается прямо на устройство.",
-      action() { switchView('notes'); }
+      view: 'notes',
+      targetSelector: '#addNoteFabBtn',
+      title: 'Новая заметка в один тап ➕',
+      body: 'Нажмите красную кнопку, чтобы открыть полноэкранный редактор и быстро сохранить запись.',
+      hint: 'Заметки сохраняются локально и доступны без интернета.'
     },
     {
-      targetSelector: "#notesSearchInput",
-      title: "Моментальный поиск по заметкам 🔎",
-      body: "Начните вводить текст сюда, и приложение моментально сфильтрует список по содержанию и заголовкам за сотые доли секунды.",
-      action() { switchView('notes'); }
+      view: 'settings',
+      targetSelector: '#addNewEmpBtn',
+      title: 'Сотрудники и ставки ⚙️',
+      body: 'В настройках добавляйте сотрудников, выбирайте им цвет и указывайте ставку: за час или за смену.',
+      hint: 'Цвет сотрудника сразу используется в календаре и диаграмме зарплаты.'
     },
     {
-      targetSelector: "#viewSettings",
-      title: "Раздел настроек приложения ⚙️",
-      body: "Мы переключились в настройки. Здесь вы можете создавать базу сотрудников, персонализировать их, менять темы и сохранять данные.",
-      action() { switchView('settings'); }
+      view: 'settings',
+      targetSelector: '#exportJsonBtn',
+      title: 'Бэкап данных 🛡️',
+      body: 'Скачивайте JSON-бэкап, чтобы перенести график на другое устройство или восстановить данные после сброса.',
+      hint: 'Это особенно важно перед переустановкой приложения или очисткой данных телефона.'
     },
     {
-      targetSelector: "#addNewEmpBtn",
-      title: "Добавление сотрудников 👤",
-      body: "Добавляйте менеджеров с указанием цвета в календаре, почасовой ставки (за час) или посменной оплаты (ставка за день).",
-      action() { switchView('settings'); }
-    },
-    {
-      targetSelector: "#themeGrid",
-      title: "Темы оформления 🎨",
-      body: "Быстро переключайтесь между контрастной современной тёмной темой и чистой светлой.",
-      action() { switchView('settings'); }
-    },
-    {
-      targetSelector: "#exportJsonBtn",
-      title: "Бэкапы & Сверхнадёжность 🛡️",
-      body: "Приложение автоматически сохраняет данные в две системы: <strong>localStorage</strong> и <strong>Android SharedPreferences</strong>. Они выдерживают очистки кэша! Создавайте бэкапы в формате JSON для страховки.",
-      action() { switchView('settings'); }
-    },
-    {
-      title: "Вы готовы! 🎉",
-      body: "Теперь вы умеете пользоваться всеми возможностями ПВЗ График на 100%. Вы всегда можете запустить этот тур заново из настроек приложения.",
-      action() { switchView('schedule'); }
+      view: 'schedule',
+      title: 'Готово — можно работать 🎉',
+      body: 'Теперь основные функции под рукой. Если что-то забудется, нажмите 🎓 вверху или в настройках — тур запустится заново.',
+      hint: 'Я сделал тур короче, понятнее и без резких перескоков.'
     }
   ];
 
-  function openTourPopover(target, step) {
-    const pop = $('tourPopover'); const spot = $('tourSpotlight');
-    if (target) {
-      spot.style.display = 'block';
-      target.scrollIntoView({ block: 'center', behavior: 'smooth' });
-      setTimeout(() => {
-        const rect = target.getBoundingClientRect();
-        spot.style.top = `${rect.top - 3}px`; spot.style.left = `${rect.left - 3}px`;
-        spot.style.width = `${rect.width + 6}px`; spot.style.height = `${rect.height + 6}px`;
-        positionPopover(rect, pop);
-      }, 100);
-    } else {
-      spot.style.display = 'block'; spot.style.top = '-9999px'; spot.style.left = '-9999px'; spot.style.width = '0px'; spot.style.height = '0px';
-      setTimeout(() => positionPopover(null, pop), 50);
-    }
-    $('tourTitle').textContent = step.title;
-    $('tourStepIndicator').textContent = `${currentStepIndex + 1}/${tourSteps.length}`;
-    $('tourBody').innerHTML = step.body;
-    $('tourBackBtn').style.display = currentStepIndex === 0 ? 'none' : 'block';
-    $('tourNextBtn').textContent = currentStepIndex === tourSteps.length - 1 ? "Вперёд 🏁" : "Далее →";
+  function createTourIfNeeded() {
+    if ($('tourContainer')) return;
+    const el = document.createElement('div');
+    el.id = 'tourContainer';
+    el.className = 'tour-container';
+    el.innerHTML = `
+      <div class="tour-blocker" id="tourBlocker"></div>
+      <div class="tour-spotlight" id="tourSpotlight" aria-hidden="true"></div>
+      <div class="tour-popover" id="tourPopover" role="dialog" aria-modal="true" aria-labelledby="tourTitle">
+        <div class="tour-progress"><div class="tour-progress-fill" id="tourProgressFill"></div></div>
+        <div class="tour-popover-header">
+          <span class="tour-popover-step" id="tourStepIndicator"></span>
+          <button class="tour-close" id="tourCloseBtn" type="button" aria-label="Закрыть обучение">✕</button>
+        </div>
+        <div class="tour-popover-title" id="tourTitle"></div>
+        <div class="tour-popover-body" id="tourBody"></div>
+        <div class="tour-hint" id="tourHint"></div>
+        <div class="tour-dots" id="tourDots" aria-label="Шаги обучения"></div>
+        <div class="tour-popover-footer">
+          <button class="btn btn-ghost" id="tourSkipBtn" type="button">Пропустить</button>
+          <div class="tour-nav-btns">
+            <button class="btn btn-ghost" id="tourBackBtn" type="button">← Назад</button>
+            <button class="btn btn-primary" id="tourNextBtn" type="button">Далее →</button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(el);
+
+    $('tourNextBtn').addEventListener('click', nextTourStep);
+    $('tourBackBtn').addEventListener('click', prevTourStep);
+    $('tourSkipBtn').addEventListener('click', () => endTour(true));
+    $('tourCloseBtn').addEventListener('click', () => endTour(true));
+    $('tourBlocker').addEventListener('click', () => vibrate(8));
+    $('tourDots').addEventListener('click', (e) => {
+      const dot = e.target.closest('.tour-dot');
+      if (!dot) return;
+      currentStepIndex = Number(dot.dataset.step) || 0;
+      updateTour();
+    });
+    ['tourNextBtn','tourBackBtn','tourSkipBtn','tourCloseBtn'].forEach(id => attachRipple($(id)));
   }
 
-  function positionPopover(targetRect, pop) {
-    pop.style.display = 'block'; const pRect = pop.getBoundingClientRect();
-    const vw = window.innerWidth; const vh = window.innerHeight;
-    let top = 0; let left = 0;
+  function showTourNudge() {
+    if (safeStorage.get(TOUR_DONE_KEY) || safeStorage.get(TOUR_LEGACY_DONE_KEY) || safeStorage.get(TOUR_NUDGE_KEY)) return;
+    if ($('tourNudge')) return;
+    const el = document.createElement('div');
+    el.id = 'tourNudge';
+    el.className = 'tour-nudge';
+    el.innerHTML = `
+      <div class="tour-nudge-title">Нужна быстрая экскурсия? 🎓</div>
+      <div class="tour-nudge-text">Я покажу календарь, массовое заполнение, зарплату, заметки и бэкапы. Это займёт около минуты.</div>
+      <div class="tour-nudge-actions">
+        <button class="btn btn-primary" id="tourNudgeStart" type="button">Начать</button>
+        <button class="btn btn-ghost" id="tourNudgeLater" type="button">Позже</button>
+      </div>
+    `;
+    document.body.appendChild(el);
+    attachRipple($('tourNudgeStart'));
+    attachRipple($('tourNudgeLater'));
+    $('tourNudgeStart').addEventListener('click', () => {
+      safeStorage.set(TOUR_NUDGE_KEY, '1');
+      hideTourNudge();
+      startTour();
+    });
+    $('tourNudgeLater').addEventListener('click', () => {
+      safeStorage.set(TOUR_NUDGE_KEY, '1');
+      hideTourNudge();
+      toast('Тур доступен через кнопку 🎓');
+    });
+    nextFrame(() => el.classList.add('show'));
+  }
 
-    if (targetRect) {
-      const tcY = targetRect.top + targetRect.height / 2;
-      const tcX = targetRect.left + targetRect.width / 2;
-      top = tcY < vh / 2 ? (targetRect.bottom + 12) : (targetRect.top - pRect.height - 12);
-      top = Math.max(12, Math.min(top, vh - pRect.height - 12));
-      left = Math.max(12, Math.min(tcX - pRect.width / 2, vw - pRect.width - 12));
-    } else {
-      top = (vh - pRect.height) / 2; left = (vw - pRect.width) / 2;
-    }
-    pop.style.top = `${top}px`; pop.style.left = `${left}px`;
+  function hideTourNudge() {
+    const n = $('tourNudge');
+    if (!n) return;
+    n.classList.remove('show');
+    setTimeout(() => n.remove(), 220);
   }
 
   function startTour() {
-    if (!$('tourContainer')) {
-      const el = document.createElement('div'); el.id = 'tourContainer'; el.className = 'tour-container';
-      el.innerHTML = `
-        <div class="tour-blocker" id="tourBlocker"></div><div class="tour-spotlight" id="tourSpotlight"></div>
-        <div class="tour-popover" id="tourPopover">
-          <div class="tour-popover-header"><span class="tour-popover-title" id="tourTitle"></span><span class="tour-popover-step" id="tourStepIndicator"></span></div>
-          <div class="tour-popover-body" id="tourBody"></div>
-          <div class="tour-popover-footer">
-            <button class="btn btn-ghost" id="tourSkipBtn">Пропустить</button>
-            <div class="tour-nav-btns"><button class="btn btn-ghost" id="tourBackBtn">← Назад</button><button class="btn btn-primary" id="tourNextBtn"></button></div>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(el);
-      $('tourNextBtn').addEventListener('click', () => { if (currentStepIndex < tourSteps.length - 1) { currentStepIndex++; updateTour(); } else endTour(); });
-      $('tourBackBtn').addEventListener('click', () => { if (currentStepIndex > 0) { currentStepIndex--; updateTour(); } });
-      $('tourSkipBtn').addEventListener('click', endTour);
-    }
+    createTourIfNeeded();
+    hideTourNudge();
     $$('.modal.show').forEach(m => m.classList.remove('show'));
-    $('tourContainer').style.display = 'block'; currentStepIndex = 0; updateTour();
+    currentStepIndex = 0;
+    tourActive = true;
+    document.body.classList.add('tour-active');
+    $('tourContainer').classList.add('show');
+    updateTour();
   }
 
   function updateTour() {
-    const s = tourSteps[currentStepIndex];
-    if (s.action) s.action();
-    setTimeout(() => {
-      let t = s.targetSelector ? document.querySelector(s.targetSelector) : null;
-      openTourPopover(t, s);
-    }, 110);
+    if (!tourActive) return;
+    const step = tourSteps[currentStepIndex];
+    if (!step) return endTour(true);
+
+    if (step.view) switchView(step.view);
+    if (typeof step.action === 'function') step.action();
+
+    const pop = $('tourPopover');
+    clearTimeout(tourPopoverTimer);
+    pop.classList.remove('show');
+
+    $('tourTitle').textContent = step.title;
+    $('tourBody').innerHTML = step.body;
+    $('tourStepIndicator').textContent = `${currentStepIndex + 1} из ${tourSteps.length}`;
+    $('tourProgressFill').style.width = `${((currentStepIndex + 1) / tourSteps.length) * 100}%`;
+    $('tourHint').textContent = step.hint || '';
+    $('tourHint').classList.toggle('show', !!step.hint);
+    $('tourBackBtn').style.visibility = currentStepIndex === 0 ? 'hidden' : 'visible';
+    $('tourNextBtn').textContent = currentStepIndex === tourSteps.length - 1 ? 'Завершить ✓' : 'Далее →';
+    $('tourDots').innerHTML = tourSteps.map((_, i) =>
+      `<button type="button" class="tour-dot${i === currentStepIndex ? ' active' : ''}" data-step="${i}" aria-label="Шаг ${i + 1}"></button>`
+    ).join('');
+
+    tourTarget = step.targetSelector ? document.querySelector(step.targetSelector) : null;
+    $('tourContainer').classList.toggle('centered', !tourTarget);
+    if (!tourTarget) $('tourSpotlight')?.classList.remove('is-visible');
+    scrollTourTarget(tourTarget);
+    queueTourLayouts();
+    tourPopoverTimer = setTimeout(() => pop.classList.add('show'), prefersReducedMotion() ? 0 : 90);
+    vibrate(8);
   }
 
-  function endTour() {
-    if ($('tourContainer')) $('tourContainer').style.display = 'none';
-    safeStorage.set('PVZ_TOUR_COMPLETED_V2', '1');
+  function scrollTourTarget(target) {
+    if (!target || typeof target.scrollIntoView !== 'function') return;
+    try {
+      target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+    } catch(_) {
+      try { target.scrollIntoView(false); } catch(__) {}
+    }
+  }
+
+  function queueTourLayouts() {
+    tourTimers.forEach(clearTimeout);
+    tourTimers = [];
+    requestTourLayout();
+    const delays = prefersReducedMotion() ? [20] : [80, 180, 340];
+    delays.forEach(ms => tourTimers.push(setTimeout(requestTourLayout, ms)));
+  }
+
+  function requestTourLayout() {
+    if (!tourActive || tourLayoutQueued) return;
+    tourLayoutQueued = true;
+    nextFrame(() => {
+      tourLayoutQueued = false;
+      layoutTour();
+    });
+  }
+
+  function getTourViewport() {
+    const vv = window.visualViewport;
+    return {
+      width: vv?.width || window.innerWidth || document.documentElement.clientWidth || 360,
+      height: vv?.height || window.innerHeight || document.documentElement.clientHeight || 640
+    };
+  }
+
+  function layoutTour() {
+    const pop = $('tourPopover');
+    const spot = $('tourSpotlight');
+    if (!pop || !spot) return;
+
+    const vp = getTourViewport();
+    const pad = 12;
+    const gap = 12;
+    const popRect = pop.getBoundingClientRect();
+    const popW = popRect.width || Math.min(360, vp.width - 24);
+    const popH = popRect.height || 260;
+    const rect = tourTarget ? tourTarget.getBoundingClientRect() : null;
+    const hasTarget = rect && (rect.width > 2 || rect.height > 2 || tourTarget === document.body);
+    $('tourContainer')?.classList.toggle('centered', !hasTarget);
+
+    let top;
+    let left;
+
+    if (hasTarget) {
+      const sPad = 6;
+      const sLeft = Math.max(8, rect.left - sPad);
+      const sTop = Math.max(8, rect.top - sPad);
+      const sWidth = Math.min(vp.width - 16, rect.width + sPad * 2);
+      const sHeight = Math.min(vp.height - 16, rect.height + sPad * 2);
+      spot.style.left = `${sLeft}px`;
+      spot.style.top = `${sTop}px`;
+      spot.style.width = `${Math.max(28, sWidth)}px`;
+      spot.style.height = `${Math.max(28, sHeight)}px`;
+      spot.classList.add('is-visible');
+
+      const roomBelow = vp.height - rect.bottom;
+      const roomAbove = rect.top;
+      top = (roomBelow >= popH + gap || roomBelow > roomAbove) ? rect.bottom + gap : rect.top - popH - gap;
+      left = rect.left + rect.width / 2 - popW / 2;
+      top = Math.max(pad, Math.min(top, vp.height - popH - pad));
+      left = Math.max(pad, Math.min(left, vp.width - popW - pad));
+    } else {
+      spot.classList.remove('is-visible');
+      top = Math.max(pad, (vp.height - popH) / 2);
+      left = Math.max(pad, (vp.width - popW) / 2);
+    }
+
+    pop.style.top = `${top}px`;
+    pop.style.left = `${left}px`;
+  }
+
+  function nextTourStep() {
+    if (currentStepIndex < tourSteps.length - 1) {
+      currentStepIndex++;
+      updateTour();
+    } else {
+      endTour(true);
+    }
+  }
+
+  function prevTourStep() {
+    if (currentStepIndex <= 0) return;
+    currentStepIndex--;
+    updateTour();
+  }
+
+  function endTour(markDone = true) {
+    tourActive = false;
+    tourTimers.forEach(clearTimeout);
+    tourTimers = [];
+    clearTimeout(tourPopoverTimer);
+    tourTarget = null;
+    document.body.classList.remove('tour-active');
+    const container = $('tourContainer');
+    if (container) container.classList.remove('show');
+    if (markDone) {
+      safeStorage.set(TOUR_DONE_KEY, '1');
+      safeStorage.set(TOUR_LEGACY_DONE_KEY, '1');
+    }
     switchView('schedule');
+    if (markDone) toast('🎓 Тур можно запустить заново в любой момент');
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (!tourActive) return;
+    if (e.key === 'Escape') { e.preventDefault(); endTour(true); }
+    else if (e.key === 'ArrowRight' || e.key === 'Enter') { e.preventDefault(); nextTourStep(); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); prevTourStep(); }
+  });
+  window.addEventListener('resize', requestTourLayout, { passive: true });
+  window.addEventListener('scroll', requestTourLayout, { passive: true });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', requestTourLayout, { passive: true });
+    window.visualViewport.addEventListener('scroll', requestTourLayout, { passive: true });
   }
 
   $('tourStartBtn').addEventListener('click', startTour);
   $('settingsTourBtn').addEventListener('click', startTour);
   $('aboutTourBtn').addEventListener('click', () => { $('aboutModal').classList.remove('show'); startTour(); });
 
+  // PWA REGISTRATION & OFFLINE STATUS
+  function setupPWA() {
+    const offlineBanner = $('offlineBanner');
+    const updateOnlineState = () => {
+      const offline = typeof navigator !== 'undefined' && 'onLine' in navigator && !navigator.onLine;
+      if (offlineBanner) offlineBanner.classList.toggle('show', offline);
+    };
+
+    window.addEventListener('online', () => { updateOnlineState(); toast('✅ Интернет подключён'); });
+    window.addEventListener('offline', () => { updateOnlineState(); toast('📴 Нет интернета — офлайн режим'); });
+    updateOnlineState();
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js').catch((err) => {
+          console.warn('[PWA] Service Worker registration failed:', err);
+        });
+      });
+    }
+  }
+
   // INITIAL STATE RECOVERY & BOOT
-  applyTheme(DATA.settings.theme || 'dark');
+  applyTheme(DATA.settings.theme || 'dark', false);
+  setupPWA();
   renderEmpBar(); renderCalendar(); renderStats(); renderSalary();
-  if (!safeStorage.get('PVZ_TOUR_COMPLETED_V2')) { setTimeout(startTour, 700); }
+  setTimeout(showTourNudge, 900);
 
   // Открытие Telegram во внешнем браузере (только для t.me)
   document.addEventListener('click', function(e) {
