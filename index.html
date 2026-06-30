@@ -359,6 +359,72 @@
   .tour-nudge-actions .btn{font-size:11px;padding:8px;border-radius:10px;}
   @media(max-width:380px){.tour-popover{width:calc(100vw - 18px);padding:12px;border-radius:16px}.tour-popover-title{font-size:15px}.tour-popover-body{font-size:12px}.tour-popover-footer{align-items:stretch;flex-direction:column}.tour-nav-btns{display:grid;grid-template-columns:1fr 1fr;width:100%;}.tour-popover-footer .btn{width:100%;}}
   @media(prefers-reduced-motion:reduce){.tour-spotlight,.tour-popover,.tour-progress-fill,.tour-nudge{transition:none!important}.tour-spotlight::after{animation:none!important;}}
+
+  /* SEARCH, REPORTS, TASKS & ENHANCED SETTINGS */
+  .search-panel{margin:10px 12px 0;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:10px;box-shadow:var(--shadow-card);}
+  .search-panel input,.search-panel select{width:100%;padding:10px 12px;background:var(--card-2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-family:inherit;outline:none;}
+  .search-panel input:focus,.search-panel select:focus{border-color:var(--accent);}
+  .search-help{font-size:10px;color:var(--text-dim);margin-top:6px;line-height:1.35;}
+  .day.search-dim{opacity:.28;filter:saturate(.55);}
+  .day.search-match{outline:2px solid var(--accent);outline-offset:-3px;z-index:2;}
+  .day.search-match .day-circle{box-shadow:0 0 0 3px rgba(255,219,77,.18),0 8px 18px rgba(255,219,77,.12);}
+  .note-meta-row{display:grid;grid-template-columns:1fr 110px;gap:8px;}
+  .note-options-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .toggle-pill{display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid var(--border);border-radius:999px;background:var(--card);font-size:12px;font-weight:800;color:var(--text);}
+  .toggle-pill input{width:auto!important;margin:0;accent-color:var(--accent);}
+  .note-item.pinned{border-color:rgba(255,219,77,.45);}
+  .note-item.important{border-left:4px solid var(--action);}
+  .note-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;}
+  .note-badge{font-size:9px;font-weight:900;padding:3px 7px;border-radius:999px;background:rgba(255,219,77,.12);color:var(--accent);border:1px solid rgba(255,219,77,.24);}
+  .tasks-header{padding:12px 16px 4px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
+  .task-composer{margin:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:12px;box-shadow:var(--shadow-card);}
+  .task-grid{display:grid;grid-template-columns:1fr 128px;gap:8px;margin-bottom:8px;}
+  .task-date-grid{grid-template-columns:1fr 110px 1fr;}
+  .task-grid input,.task-grid select,.task-filters select{width:100%;padding:10px 12px;background:var(--card-2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-family:inherit;outline:none;}
+  .task-filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 12px 10px;}
+  .task-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;padding:0 12px 12px;}
+  .task-item{display:flex;gap:10px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px;box-shadow:var(--shadow-card);animation:fadeIn .2s ease;}
+  .task-item.done{opacity:.58;}
+  .task-item.done .task-title{text-decoration:line-through;}
+  .task-check{width:24px;height:24px;border-radius:8px;border:1.5px solid var(--border);background:var(--card-2);color:var(--accent);font-weight:900;cursor:pointer;flex-shrink:0;}
+  .task-main{flex:1;min-width:0;}
+  .task-title{font-size:14px;font-weight:900;color:var(--text);word-break:break-word;}
+  .task-meta{font-size:10px;color:var(--text-dim);display:flex;gap:6px;flex-wrap:wrap;margin-top:5px;}
+  .task-priority{font-size:9px;font-weight:900;padding:3px 7px;border-radius:999px;text-transform:uppercase;letter-spacing:.3px;}
+  .task-priority.high{background:rgba(255,61,77,.12);color:var(--action);border:1px solid rgba(255,61,77,.25);}
+  .task-priority.normal{background:rgba(96,165,250,.12);color:#60a5fa;border:1px solid rgba(96,165,250,.24);}
+  .task-priority.low{background:rgba(52,211,153,.12);color:var(--green);border:1px solid rgba(52,211,153,.24);}
+
+  .note-folder-tabs{display:flex;gap:7px;overflow-x:auto;padding:0 12px 10px;scrollbar-width:none;}
+  .note-folder-tabs::-webkit-scrollbar{display:none;}
+  .note-folder-tab{flex-shrink:0;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:999px;padding:8px 12px;font-size:11px;font-weight:900;cursor:pointer;}
+  .note-folder-tab.active{border-color:var(--accent);background:rgba(255,219,77,.12);color:var(--accent);}
+  .task-template-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:8px 0 10px;}
+  .task-template-card{border:1.5px solid var(--border);background:var(--card-2);border-radius:14px;padding:10px;text-align:left;color:var(--text);font-family:inherit;cursor:pointer;transition:transform .12s,border-color .15s,background .15s;}
+  .task-template-card.active{border-color:var(--accent);background:rgba(255,219,77,.10);}
+  .task-template-card:active{transform:scale(.97);}
+  .task-template-ic{font-size:22px;margin-bottom:4px;}
+  .task-template-name{font-size:12px;font-weight:900;margin-bottom:3px;}
+  .task-template-sub{font-size:9.5px;color:var(--text-dim);line-height:1.3;}
+
+  .task-created-preview{margin-top:10px;border:1px solid var(--border);border-radius:14px;background:var(--card-2);padding:12px;}
+  .task-created-title{font-size:14px;font-weight:900;color:var(--accent);margin-bottom:8px;}
+
+  .checklist-lines{display:flex;flex-direction:column;gap:7px;margin-top:10px;}
+  .checkline{display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--text);padding:7px 8px;border-radius:10px;background:rgba(255,255,255,.03);}
+  [data-theme="light"] .checkline{background:rgba(15,23,42,.03);}
+  .checkline.done{opacity:.55;text-decoration:line-through;}
+  .checkline input{margin-top:2px;accent-color:var(--accent);}
+  .task-progress{height:7px;background:var(--border);border-radius:999px;overflow:hidden;margin-top:8px;}
+  .task-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:inherit;}
+
+  .task-del{width:28px;height:28px;border-radius:9px;border:1px solid rgba(255,61,77,.22);background:rgba(255,61,77,.08);color:var(--action);cursor:pointer;flex-shrink:0;}
+  .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .settings-grid .field.full{grid-column:1/-1;}
+  .report-mini{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border-radius:12px;background:var(--card-2);border:1px solid var(--border);font-size:12px;margin-bottom:8px;}
+  .report-mini strong{color:var(--accent);}
+  @media(max-width:430px){.task-grid,.task-filters,.settings-grid,.note-meta-row{grid-template-columns:1fr}.bottom-nav{gap:2px}.nav-btn span:not(.ic){font-size:8px}.nav-btn .nav-icon-wrapper{width:40px}}
+
   /* PRINT OPTIMIZATION */
   /* ПОЛНОЭКРАННЫЙ РЕДАКТОР ЗАМЕТОК */
   .note-editor-full{position:fixed;inset:0;z-index:100;background:var(--bg);display:none;flex-direction:column;}
@@ -406,6 +472,10 @@
     </div>
   </header>
   <nav class="emp-bar" id="empBar"></nav>
+  <div class="search-panel" id="calendarSearchPanel">
+    <input type="search" id="calendarSearchInput" placeholder="🔎 Поиск по календарю: сотрудник, дата, смена, без смен..." autocomplete="off" />
+    <div class="search-help">Например: «Роман», «вечер», «15.07», «без смен». Совпадения подсвечиваются жёлтой рамкой.</div>
+  </div>
   <main id="viewSchedule">
     <div class="desktop-grid">
       <div class="calendar-col">
@@ -445,13 +515,44 @@
     </div>
   </main>
   <section id="viewNotes" hidden>
-    <div class="notes-header"><div class="notes-title">Личные заметки</div></div>
-    <div class="notes-search"><input type="search" id="notesSearchInput" placeholder="Поиск заметок..." /></div>
+    <div class="notes-header"><div class="notes-title" data-i18n="notesTitle">Личные заметки</div></div>
+    <div class="notes-search"><input type="search" id="notesSearchInput" data-i18n-placeholder="notesSearch" placeholder="Поиск заметок..." /></div>
     <div class="notes-list" id="notesList"></div>
     <button class="fab-btn" id="addNoteFabBtn" style="position:fixed !important; bottom:calc(env(safe-area-inset-bottom,0) + 104px) !important; right:20px !important; left:auto !important; width:52px !important; height:52px !important; border-radius:50% !important; background:linear-gradient(135deg,var(--red),#ff6b6b) !important; color:#fff !important; font-size:24px !important; border:0 !important; cursor:pointer !important; display:flex !important; align-items:center !important; justify-content:center !important; box-shadow:0 4px 14px var(--red-glow) !important; z-index:99 !important;">+</button>
   </section>
+  <section id="viewTasks" hidden>
+    <div class="tasks-header"><div class="notes-title" data-i18n="tasksTitle">ПВЗ чек-листы</div></div>
+    <div class="task-composer pvz-task-composer">
+      <div class="report-mini"><div><strong data-i18n="taskTemplatesTitle">Готовые шаблоны ПВЗ</strong><br><span data-i18n="taskTemplatesSub">Выберите процесс — приложение создаст понятный чек-лист</span></div></div>
+      <div class="task-template-grid" id="taskTemplateGrid"></div>
+      <button class="btn btn-primary" id="addTaskBtn" style="width:100%;" data-i18n="createChecklist">+ Создать чек-лист</button>
+      <div class="task-created-preview" id="taskCreatedPreview" hidden></div>
+    </div>
+  </section>
   <section id="viewSettings" hidden>
     <div class="month-nav"><div class="notes-title">Настройки</div></div>
+    <div class="section">
+      <h3 data-i18n="languageSettings">Язык интерфейса</h3>
+      <div class="field">
+        <label for="settingsLanguage" data-i18n="language">Язык интерфейса</label>
+        <select id="settingsLanguage">
+          <option value="ru">Русский</option>
+          <option value="hy">Հայերեն</option>
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="fr">Français</option>
+          <option value="de">Deutsch</option>
+          <option value="it">Italiano</option>
+          <option value="pt">Português</option>
+          <option value="tr">Türkçe</option>
+          <option value="ar">العربية</option>
+          <option value="zh">中文</option>
+          <option value="hi">हिन्दी</option>
+          <option value="fa">فارسی</option>
+          <option value="ka">ქართული</option>
+        </select>
+      </div>
+    </div>
     <div class="section">
       <h3>Сотрудники</h3>
       <div class="emp-list" id="settingsEmpList"></div>
@@ -482,6 +583,10 @@
     <button class="nav-btn" data-view="notes">
       <div class="nav-icon-wrapper"><span class="ic">📝</span></div>
       <span>Заметки</span>
+    </button>
+    <button class="nav-btn" data-view="tasks">
+      <div class="nav-icon-wrapper"><span class="ic">✅</span></div>
+      <span>Задачи</span>
     </button>
     <button class="nav-btn" data-view="settings">
       <div class="nav-icon-wrapper"><span class="ic">⚙️</span></div>
@@ -639,6 +744,24 @@
   const $$ = (sel, ctx = document) => ctx.querySelectorAll(sel);
   const escapeHTML = (s) => String(s || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
   const debounce = (fn, ms=150) => { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); }; };
+  const I18N = {
+    ru: { schedule:'Календарь', notes:'Заметки', tasks:'Задачи', settings:'Настройки', about:'О прог.', allSchedules:'Все графики', monthToday:'Сегодня', shiftTypes:'Типы смен', worked:'Отработанные смены / часы', salaryCalc:'Расчёт зарплаты', total:'Итого', notesTitle:'Личные заметки', notesSearch:'Поиск заметок...', tasksTitle:'ПВЗ чек-листы', taskTemplatesTitle:'Готовые шаблоны ПВЗ', taskTemplatesSub:'Выберите процесс — приложение создаст понятный чек-лист', createChecklist:'+ Создать чек-лист', settingsTitle:'Настройки', languageSettings:'Язык интерфейса', language:'Язык интерфейса', employees:'Сотрудники', addEmployee:'+ Добавить сотрудника', theme:'Тема оформления', education:'Обучение', startTour:'🎓 Запустить интерактивный тур', backupReset:'Резервные копии и сброс', backup:'💾 Скачать бэкап (JSON)', importBackup:'📥 Загрузить бэкап (JSON)', resetAll:'⚠️ Полный сброс всех данных', searchCalendar:'🔎 Поиск по календарю: сотрудник, дата, смена, без смен...', searchHelp:'Например: «Роман», «вечер», «15.07», «без смен». Совпадения подсвечиваются жёлтой рамкой.', emptyNotes:'Заметок нет', nothingFound:'Ничего не найдено', emptyTasks:'Чек-листов нет', checklistAdded:'Чек-лист создан', active:'Активно', all:'Все', today:'На сегодня', completed:'Выполненные', noEmployee:'Без сотрудника', dueNone:'Без даты', deleteTask:'Удалить чек-лист?', deleteTaskText:'Чек-лист будет удалён безвозвратно.', taskDeleted:'Чек-лист удалён', noteEditor:'Редактировать', noteNew:'Новая заметка', noteEmpty:'Заметка пуста', saved:'✓ Сохранено', settingsSaved:'Настройки сохранены', appUpdating:'Обновляю приложение...', days:'дней', hours:'часов' },
+    hy: { schedule:'Օրացույց', notes:'Նոթեր', tasks:'Առաջադրանքներ', settings:'Կարգավորումներ', about:'Ծրագրի մասին', allSchedules:'Բոլոր գրաֆիկները', monthToday:'Այսօր', shiftTypes:'Հերթափոխերի տեսակներ', worked:'Աշխատած հերթափոխեր / ժամեր', salaryCalc:'Աշխատավարձի հաշվարկ', total:'Ընդամենը', notesTitle:'Անձնական նոթեր', notesSearch:'Որոնել նոթերում...', tasksTitle:'ՊՎԶ ստուգաթերթեր', taskTemplatesTitle:'ՊՎԶ պատրաստի ձևանմուշներ', taskTemplatesSub:'Ընտրեք գործընթացը՝ ծրագիրը կստեղծի հստակ ստուգաթերթ', createChecklist:'+ Ստեղծել ստուգաթերթ', settingsTitle:'Կարգավորումներ', languageSettings:'Ինտերֆեյսի լեզու', language:'Ինտերֆեյսի լեզու', employees:'Աշխատակիցներ', addEmployee:'+ Ավելացնել աշխատակից', theme:'Ձևավորման թեմա', education:'Ուսուցում', startTour:'🎓 Բացել ուսուցումը', backupReset:'Պահուստավորում և զրոյացում', backup:'💾 Ներբեռնել պահուստ (JSON)', importBackup:'📥 Վերբեռնել պահուստ (JSON)', resetAll:'⚠️ Ամբողջական զրոյացում', searchCalendar:'🔎 Որոնում օրացույցում՝ աշխատակից, ամսաթիվ, հերթափոխ...', searchHelp:'Օրինակ՝ «Ռոման», «երեկո», «15.07», «առանց հերթափոխի»։', emptyNotes:'Նոթեր չկան', nothingFound:'Ոչինչ չի գտնվել', emptyTasks:'Ստուգաթերթեր չկան', checklistAdded:'Ստուգաթերթը ստեղծվեց', active:'Ակտիվ', all:'Բոլորը', today:'Այսօր', completed:'Կատարված', noEmployee:'Առանց աշխատակցի', dueNone:'Առանց ամսաթվի', deleteTask:'Ջնջե՞լ ստուգաթերթը', deleteTaskText:'Ստուգաթերթը կջնջվի անվերադարձ։', taskDeleted:'Ստուգաթերթը ջնջվեց', noteEditor:'Խմբագրել', noteNew:'Նոր նոթ', noteEmpty:'Նոթը դատարկ է', saved:'✓ Պահպանված է', settingsSaved:'Կարգավորումները պահպանված են', appUpdating:'Թարմացնում եմ ծրագիրը...', days:'օր', hours:'ժամ' },
+    en: { schedule:'Calendar', notes:'Notes', tasks:'Tasks', settings:'Settings', about:'About', allSchedules:'All schedules', monthToday:'Today', shiftTypes:'Shift types', worked:'Worked shifts / hours', salaryCalc:'Salary calculation', total:'Total', notesTitle:'Personal notes', notesSearch:'Search notes...', tasksTitle:'PVZ checklists', taskTemplatesTitle:'Ready PVZ templates', taskTemplatesSub:'Choose a process — the app will create a clear checklist', createChecklist:'+ Create checklist', settingsTitle:'Settings', languageSettings:'Interface language', language:'Interface language', employees:'Employees', addEmployee:'+ Add employee', theme:'Theme', education:'Tutorial', startTour:'🎓 Start interactive tour', backupReset:'Backups and reset', backup:'💾 Download backup (JSON)', importBackup:'📥 Import backup (JSON)', resetAll:'⚠️ Full data reset', searchCalendar:'🔎 Search calendar: employee, date, shift, empty...', searchHelp:'Examples: “Roman”, “evening”, “15.07”, “no shifts”. Matches are highlighted.', emptyNotes:'No notes', nothingFound:'Nothing found', emptyTasks:'No checklists', checklistAdded:'Checklist created', active:'Active', all:'All', today:'Today', completed:'Completed', noEmployee:'No employee', dueNone:'No date', deleteTask:'Delete checklist?', deleteTaskText:'The checklist will be permanently deleted.', taskDeleted:'Checklist deleted', noteEditor:'Edit', noteNew:'New note', noteEmpty:'Note is empty', saved:'✓ Saved', settingsSaved:'Settings saved', appUpdating:'Updating app...', days:'days', hours:'hours' },
+    es: { schedule:'Calendario', notes:'Notas', tasks:'Tareas', settings:'Ajustes', about:'Acerca', allSchedules:'Todos los horarios', monthToday:'Hoy', shiftTypes:'Tipos de turno', worked:'Turnos / horas trabajadas', salaryCalc:'Cálculo de salario', total:'Total', notesTitle:'Notas personales', notesSearch:'Buscar notas...', tasksTitle:'Listas PVZ', taskTemplatesTitle:'Plantillas PVZ', taskTemplatesSub:'Elige un proceso y se creará una lista', createChecklist:'+ Crear lista', settingsTitle:'Ajustes', languageSettings:'Idioma de la interfaz', language:'Idioma', employees:'Empleados', addEmployee:'+ Añadir empleado', theme:'Tema', education:'Tutorial', startTour:'🎓 Iniciar tutorial', backupReset:'Copias y reinicio', backup:'💾 Descargar copia (JSON)', importBackup:'📥 Importar copia (JSON)', resetAll:'⚠️ Reinicio completo', searchCalendar:'🔎 Buscar en calendario...', searchHelp:'Busca empleado, fecha, turno o días vacíos.', emptyNotes:'No hay notas', nothingFound:'No encontrado', emptyTasks:'No hay listas', checklistAdded:'Lista creada', active:'Activo', all:'Todo', today:'Hoy', completed:'Completadas', noEmployee:'Sin empleado', dueNone:'Sin fecha', deleteTask:'¿Eliminar lista?', deleteTaskText:'La lista se eliminará definitivamente.', taskDeleted:'Lista eliminada', noteEditor:'Editar', noteNew:'Nueva nota', noteEmpty:'La nota está vacía', saved:'✓ Guardado', settingsSaved:'Ajustes guardados', appUpdating:'Actualizando...', days:'días', hours:'horas' },
+    fr: { schedule:'Calendrier', notes:'Notes', tasks:'Tâches', settings:'Paramètres', about:'À propos', allSchedules:'Tous les plannings', monthToday:'Aujourd’hui', shiftTypes:'Types de poste', worked:'Postes / heures travaillés', salaryCalc:'Calcul du salaire', total:'Total', notesTitle:'Notes personnelles', notesSearch:'Rechercher des notes...', tasksTitle:'Check-lists PVZ', taskTemplatesTitle:'Modèles PVZ', taskTemplatesSub:'Choisissez un processus', createChecklist:'+ Créer une liste', settingsTitle:'Paramètres', languageSettings:'Langue de l’interface', language:'Langue', employees:'Employés', addEmployee:'+ Ajouter un employé', theme:'Thème', education:'Tutoriel', startTour:'🎓 Lancer le tutoriel', backupReset:'Sauvegarde et réinitialisation', backup:'💾 Télécharger sauvegarde', importBackup:'📥 Importer sauvegarde', resetAll:'⚠️ Réinitialisation complète', searchCalendar:'🔎 Rechercher dans le calendrier...', searchHelp:'Recherchez employé, date, poste ou jours vides.', emptyNotes:'Aucune note', nothingFound:'Rien trouvé', emptyTasks:'Aucune liste', checklistAdded:'Liste créée', active:'Actif', all:'Tous', today:'Aujourd’hui', completed:'Terminées', noEmployee:'Sans employé', dueNone:'Sans date', deleteTask:'Supprimer la liste ?', deleteTaskText:'La liste sera supprimée définitivement.', taskDeleted:'Liste supprimée', noteEditor:'Modifier', noteNew:'Nouvelle note', noteEmpty:'La note est vide', saved:'✓ Enregistré', settingsSaved:'Paramètres enregistrés', appUpdating:'Mise à jour...', days:'jours', hours:'heures' },
+    de: { schedule:'Kalender', notes:'Notizen', tasks:'Aufgaben', settings:'Einstellungen', about:'Info', allSchedules:'Alle Pläne', monthToday:'Heute', shiftTypes:'Schichtarten', worked:'Schichten / Stunden', salaryCalc:'Gehaltsberechnung', total:'Gesamt', notesTitle:'Persönliche Notizen', notesSearch:'Notizen suchen...', tasksTitle:'PVZ-Checklisten', taskTemplatesTitle:'PVZ-Vorlagen', taskTemplatesSub:'Prozess wählen und Checkliste erstellen', createChecklist:'+ Checkliste erstellen', settingsTitle:'Einstellungen', languageSettings:'Sprache', language:'Sprache', employees:'Mitarbeiter', addEmployee:'+ Mitarbeiter hinzufügen', theme:'Design', education:'Tutorial', startTour:'🎓 Tutorial starten', backupReset:'Backup und Reset', backup:'💾 Backup herunterladen', importBackup:'📥 Backup importieren', resetAll:'⚠️ Alles zurücksetzen', searchCalendar:'🔎 Kalender suchen...', searchHelp:'Suche nach Mitarbeiter, Datum, Schicht oder leeren Tagen.', emptyNotes:'Keine Notizen', nothingFound:'Nichts gefunden', emptyTasks:'Keine Checklisten', checklistAdded:'Checkliste erstellt', active:'Aktiv', all:'Alle', today:'Heute', completed:'Erledigt', noEmployee:'Ohne Mitarbeiter', dueNone:'Kein Datum', deleteTask:'Checkliste löschen?', deleteTaskText:'Die Checkliste wird dauerhaft gelöscht.', taskDeleted:'Checkliste gelöscht', noteEditor:'Bearbeiten', noteNew:'Neue Notiz', noteEmpty:'Notiz ist leer', saved:'✓ Gespeichert', settingsSaved:'Einstellungen gespeichert', appUpdating:'Aktualisiere...', days:'Tage', hours:'Stunden' },
+    it: { schedule:'Calendario', notes:'Note', tasks:'Attività', settings:'Impostazioni', about:'About', allSchedules:'All schedules', monthToday:'Today', shiftTypes:'Shift types', worked:'Worked shifts / hours', salaryCalc:'Salary calculation', total:'Total', notesTitle:'Personal notes', notesSearch:'Search notes...', tasksTitle:'PVZ checklists', taskTemplatesTitle:'Ready PVZ templates', taskTemplatesSub:'Choose a process — the app will create a clear checklist', createChecklist:'+ Create checklist', settingsTitle:'Impostazioni', languageSettings:'Interface language', language:'Interface language', employees:'Employees', addEmployee:'+ Add employee', theme:'Theme', education:'Tutorial', startTour:'🎓 Start interactive tour', backupReset:'Backups and reset', backup:'💾 Download backup (JSON)', importBackup:'📥 Import backup (JSON)', resetAll:'⚠️ Full data reset', searchCalendar:'🔎 Search calendar: employee, date, shift, empty...', searchHelp:'Examples: “Roman”, “evening”, “15.07”, “no shifts”. Matches are highlighted.', emptyNotes:'No notes', nothingFound:'Nothing found', emptyTasks:'No checklists', checklistAdded:'Checklist created', active:'Active', all:'All', today:'Today', completed:'Completed', noEmployee:'No employee', dueNone:'No date', deleteTask:'Delete checklist?', deleteTaskText:'The checklist will be permanently deleted.', taskDeleted:'Checklist deleted', noteEditor:'Edit', noteNew:'New note', noteEmpty:'Note is empty', saved:'✓ Saved', settingsSaved:'Settings saved', appUpdating:'Updating app...', days:'days', hours:'hours' },
+    pt: { schedule:'Calendário', notes:'Notas', tasks:'Tarefas', settings:'Configurações', about:'About', allSchedules:'All schedules', monthToday:'Today', shiftTypes:'Shift types', worked:'Worked shifts / hours', salaryCalc:'Salary calculation', total:'Total', notesTitle:'Personal notes', notesSearch:'Search notes...', tasksTitle:'PVZ checklists', taskTemplatesTitle:'Ready PVZ templates', taskTemplatesSub:'Choose a process — the app will create a clear checklist', createChecklist:'+ Create checklist', settingsTitle:'Configurações', languageSettings:'Interface language', language:'Interface language', employees:'Employees', addEmployee:'+ Add employee', theme:'Theme', education:'Tutorial', startTour:'🎓 Start interactive tour', backupReset:'Backups and reset', backup:'💾 Download backup (JSON)', importBackup:'📥 Import backup (JSON)', resetAll:'⚠️ Full data reset', searchCalendar:'🔎 Search calendar: employee, date, shift, empty...', searchHelp:'Examples: “Roman”, “evening”, “15.07”, “no shifts”. Matches are highlighted.', emptyNotes:'No notes', nothingFound:'Nothing found', emptyTasks:'No checklists', checklistAdded:'Checklist created', active:'Active', all:'All', today:'Today', completed:'Completed', noEmployee:'No employee', dueNone:'No date', deleteTask:'Delete checklist?', deleteTaskText:'The checklist will be permanently deleted.', taskDeleted:'Checklist deleted', noteEditor:'Edit', noteNew:'New note', noteEmpty:'Note is empty', saved:'✓ Saved', settingsSaved:'Settings saved', appUpdating:'Updating app...', days:'days', hours:'hours' },
+    tr: { schedule:'Takvim', notes:'Notlar', tasks:'Görevler', settings:'Ayarlar', about:'About', allSchedules:'All schedules', monthToday:'Today', shiftTypes:'Shift types', worked:'Worked shifts / hours', salaryCalc:'Salary calculation', total:'Total', notesTitle:'Personal notes', notesSearch:'Search notes...', tasksTitle:'PVZ checklists', taskTemplatesTitle:'Ready PVZ templates', taskTemplatesSub:'Choose a process — the app will create a clear checklist', createChecklist:'+ Create checklist', settingsTitle:'Ayarlar', languageSettings:'Interface language', language:'Interface language', employees:'Employees', addEmployee:'+ Add employee', theme:'Theme', education:'Tutorial', startTour:'🎓 Start interactive tour', backupReset:'Backups and reset', backup:'💾 Download backup (JSON)', importBackup:'📥 Import backup (JSON)', resetAll:'⚠️ Full data reset', searchCalendar:'🔎 Search calendar: employee, date, shift, empty...', searchHelp:'Examples: “Roman”, “evening”, “15.07”, “no shifts”. Matches are highlighted.', emptyNotes:'No notes', nothingFound:'Nothing found', emptyTasks:'No checklists', checklistAdded:'Checklist created', active:'Active', all:'All', today:'Today', completed:'Completed', noEmployee:'No employee', dueNone:'No date', deleteTask:'Delete checklist?', deleteTaskText:'The checklist will be permanently deleted.', taskDeleted:'Checklist deleted', noteEditor:'Edit', noteNew:'New note', noteEmpty:'Note is empty', saved:'✓ Saved', settingsSaved:'Settings saved', appUpdating:'Updating app...', days:'days', hours:'hours' },
+    ar: { schedule:'التقويم', notes:'ملاحظات', tasks:'مهام', settings:'الإعدادات', about:'About', allSchedules:'All schedules', monthToday:'Today', shiftTypes:'Shift types', worked:'Worked shifts / hours', salaryCalc:'Salary calculation', total:'Total', notesTitle:'Personal notes', notesSearch:'Search notes...', tasksTitle:'PVZ checklists', taskTemplatesTitle:'Ready PVZ templates', taskTemplatesSub:'Choose a process — the app will create a clear checklist', createChecklist:'+ Create checklist', settingsTitle:'الإعدادات', languageSettings:'Interface language', language:'Interface language', employees:'Employees', addEmployee:'+ Add employee', theme:'Theme', education:'Tutorial', startTour:'🎓 Start interactive tour', backupReset:'Backups and reset', backup:'💾 Download backup (JSON)', importBackup:'📥 Import backup (JSON)', resetAll:'⚠️ Full data reset', searchCalendar:'🔎 Search calendar: employee, date, shift, empty...', searchHelp:'Examples: “Roman”, “evening”, “15.07”, “no shifts”. Matches are highlighted.', emptyNotes:'No notes', nothingFound:'Nothing found', emptyTasks:'No checklists', checklistAdded:'Checklist created', active:'Active', all:'All', today:'Today', completed:'Completed', noEmployee:'No employee', dueNone:'No date', deleteTask:'Delete checklist?', deleteTaskText:'The checklist will be permanently deleted.', taskDeleted:'Checklist deleted', noteEditor:'Edit', noteNew:'New note', noteEmpty:'Note is empty', saved:'✓ Saved', settingsSaved:'Settings saved', appUpdating:'Updating app...', days:'days', hours:'hours' },
+    zh: { schedule:'日历', notes:'笔记', tasks:'任务', settings:'设置', about:'About', allSchedules:'All schedules', monthToday:'Today', shiftTypes:'Shift types', worked:'Worked shifts / hours', salaryCalc:'Salary calculation', total:'Total', notesTitle:'Personal notes', notesSearch:'Search notes...', tasksTitle:'PVZ checklists', taskTemplatesTitle:'Ready PVZ templates', taskTemplatesSub:'Choose a process — the app will create a clear checklist', createChecklist:'+ Create checklist', settingsTitle:'设置', languageSettings:'Interface language', language:'Interface language', employees:'Employees', addEmployee:'+ Add employee', theme:'Theme', education:'Tutorial', startTour:'🎓 Start interactive tour', backupReset:'Backups and reset', backup:'💾 Download backup (JSON)', importBackup:'📥 Import backup (JSON)', resetAll:'⚠️ Full data reset', searchCalendar:'🔎 Search calendar: employee, date, shift, empty...', searchHelp:'Examples: “Roman”, “evening”, “15.07”, “no shifts”. Matches are highlighted.', emptyNotes:'No notes', nothingFound:'Nothing found', emptyTasks:'No checklists', checklistAdded:'Checklist created', active:'Active', all:'All', today:'Today', completed:'Completed', noEmployee:'No employee', dueNone:'No date', deleteTask:'Delete checklist?', deleteTaskText:'The checklist will be permanently deleted.', taskDeleted:'Checklist deleted', noteEditor:'Edit', noteNew:'New note', noteEmpty:'Note is empty', saved:'✓ Saved', settingsSaved:'Settings saved', appUpdating:'Updating app...', days:'days', hours:'hours' },
+    hi: { schedule:'कैलेंडर', notes:'नोट्स', tasks:'कार्य', settings:'सेटिंग्स', about:'About', allSchedules:'All schedules', monthToday:'Today', shiftTypes:'Shift types', worked:'Worked shifts / hours', salaryCalc:'Salary calculation', total:'Total', notesTitle:'Personal notes', notesSearch:'Search notes...', tasksTitle:'PVZ checklists', taskTemplatesTitle:'Ready PVZ templates', taskTemplatesSub:'Choose a process — the app will create a clear checklist', createChecklist:'+ Create checklist', settingsTitle:'सेटिंग्स', languageSettings:'Interface language', language:'Interface language', employees:'Employees', addEmployee:'+ Add employee', theme:'Theme', education:'Tutorial', startTour:'🎓 Start interactive tour', backupReset:'Backups and reset', backup:'💾 Download backup (JSON)', importBackup:'📥 Import backup (JSON)', resetAll:'⚠️ Full data reset', searchCalendar:'🔎 Search calendar: employee, date, shift, empty...', searchHelp:'Examples: “Roman”, “evening”, “15.07”, “no shifts”. Matches are highlighted.', emptyNotes:'No notes', nothingFound:'Nothing found', emptyTasks:'No checklists', checklistAdded:'Checklist created', active:'Active', all:'All', today:'Today', completed:'Completed', noEmployee:'No employee', dueNone:'No date', deleteTask:'Delete checklist?', deleteTaskText:'The checklist will be permanently deleted.', taskDeleted:'Checklist deleted', noteEditor:'Edit', noteNew:'New note', noteEmpty:'Note is empty', saved:'✓ Saved', settingsSaved:'Settings saved', appUpdating:'Updating app...', days:'days', hours:'hours' },
+    fa: { schedule:'تقویم', notes:'یادداشت\u200cها', tasks:'وظایف', settings:'تنظیمات', about:'About', allSchedules:'All schedules', monthToday:'Today', shiftTypes:'Shift types', worked:'Worked shifts / hours', salaryCalc:'Salary calculation', total:'Total', notesTitle:'Personal notes', notesSearch:'Search notes...', tasksTitle:'PVZ checklists', taskTemplatesTitle:'Ready PVZ templates', taskTemplatesSub:'Choose a process — the app will create a clear checklist', createChecklist:'+ Create checklist', settingsTitle:'تنظیمات', languageSettings:'Interface language', language:'Interface language', employees:'Employees', addEmployee:'+ Add employee', theme:'Theme', education:'Tutorial', startTour:'🎓 Start interactive tour', backupReset:'Backups and reset', backup:'💾 Download backup (JSON)', importBackup:'📥 Import backup (JSON)', resetAll:'⚠️ Full data reset', searchCalendar:'🔎 Search calendar: employee, date, shift, empty...', searchHelp:'Examples: “Roman”, “evening”, “15.07”, “no shifts”. Matches are highlighted.', emptyNotes:'No notes', nothingFound:'Nothing found', emptyTasks:'No checklists', checklistAdded:'Checklist created', active:'Active', all:'All', today:'Today', completed:'Completed', noEmployee:'No employee', dueNone:'No date', deleteTask:'Delete checklist?', deleteTaskText:'The checklist will be permanently deleted.', taskDeleted:'Checklist deleted', noteEditor:'Edit', noteNew:'New note', noteEmpty:'Note is empty', saved:'✓ Saved', settingsSaved:'Settings saved', appUpdating:'Updating app...', days:'days', hours:'hours' },
+    ka: { schedule:'კალენდარი', notes:'ჩანაწერები', tasks:'დავალებები', settings:'პარამეტრები', about:'About', allSchedules:'All schedules', monthToday:'Today', shiftTypes:'Shift types', worked:'Worked shifts / hours', salaryCalc:'Salary calculation', total:'Total', notesTitle:'Personal notes', notesSearch:'Search notes...', tasksTitle:'PVZ checklists', taskTemplatesTitle:'Ready PVZ templates', taskTemplatesSub:'Choose a process — the app will create a clear checklist', createChecklist:'+ Create checklist', settingsTitle:'პარამეტრები', languageSettings:'Interface language', language:'Interface language', employees:'Employees', addEmployee:'+ Add employee', theme:'Theme', education:'Tutorial', startTour:'🎓 Start interactive tour', backupReset:'Backups and reset', backup:'💾 Download backup (JSON)', importBackup:'📥 Import backup (JSON)', resetAll:'⚠️ Full data reset', searchCalendar:'🔎 Search calendar: employee, date, shift, empty...', searchHelp:'Examples: “Roman”, “evening”, “15.07”, “no shifts”. Matches are highlighted.', emptyNotes:'No notes', nothingFound:'Nothing found', emptyTasks:'No checklists', checklistAdded:'Checklist created', active:'Active', all:'All', today:'Today', completed:'Completed', noEmployee:'No employee', dueNone:'No date', deleteTask:'Delete checklist?', deleteTaskText:'The checklist will be permanently deleted.', taskDeleted:'Checklist deleted', noteEditor:'Edit', noteNew:'New note', noteEmpty:'Note is empty', saved:'✓ Saved', settingsSaved:'Settings saved', appUpdating:'Updating app...', days:'days', hours:'hours' },
+  };
+  const t = (key) => (I18N[DATA?.settings?.language || 'ru'] || I18N.ru)[key] || I18N.ru[key] || key;
+
 
   // COALESCED RENDER SCHEDULER: объединяет несколько обновлений в один кадр
   const nextFrame = (fn) => (window.requestAnimationFrame || ((cb) => setTimeout(cb, 16))).call(window, fn);
@@ -714,7 +837,18 @@
     ],
     shifts: {},
     personalNotes: [],
-    settings: { theme: 'dark', currentEmpFilter: 'all' }
+    tasks: [],
+    settings: {
+      theme: 'dark',
+      currentEmpFilter: 'all',
+      pvzName: 'ПВЗ График',
+      pvzAddress: '',
+      currency: '₽',
+      defaultStart: '09:00',
+      defaultEnd: '21:00',
+      fontSize: 'normal',
+      language: 'ru'
+    }
   };
 
   const cloneInitialData = () => JSON.parse(JSON.stringify(INITIAL_DATA));
@@ -723,6 +857,9 @@
     if (!Array.isArray(data.employees) || !data.employees.length) data.employees = cloneInitialData().employees;
     if (!data.shifts || typeof data.shifts !== 'object') data.shifts = {};
     if (!Array.isArray(data.personalNotes)) data.personalNotes = [];
+    if (!Array.isArray(data.tasks)) data.tasks = [];
+    data.personalNotes = data.personalNotes.map(n => ({ category: 'Общее', color: '#ffdb4d', pinned: false, important: false, ...n }));
+    data.tasks = data.tasks.map(t => ({ done: false, priority: 'normal', due: '', time: '', empId: '', createdAt: Date.now(), ...t }));
     data.settings = { ...INITIAL_DATA.settings, ...(data.settings || {}) };
     return data;
   }
@@ -770,6 +907,11 @@
   let currentDate = new Date();
   const dayKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   const parseKey = (k) => { const p = k.split('-'); return new Date(+p[0], +p[1]-1, +p[2]); };
+  function syncDefaultShiftTimes() {
+    DEFAULT_TEMPLATES[0].defaultStart = DATA.settings.defaultStart || '09:00';
+    DEFAULT_TEMPLATES[0].defaultEnd = DATA.settings.defaultEnd || '21:00';
+  }
+  syncDefaultShiftTimes();
 
   // TOAST MSG
   let toastT = null;
@@ -834,12 +976,13 @@
   });
 
   // NAVIGATION VIEW SWITCHING & VIEW CHANGER
-  const views = { schedule: $('viewSchedule'), notes: $('viewNotes'), settings: $('viewSettings') };
+  const views = { schedule: $('viewSchedule'), notes: $('viewNotes'), tasks: $('viewTasks'), settings: $('viewSettings') };
   function switchView(v) {
     if (!views[v]) return;
     $$('.bottom-nav .nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === v));
     for (const key in views) views[key].hidden = key !== v;
     if (v === 'notes') renderNotes();
+    if (v === 'tasks') renderTasks();
     if (v === 'settings') renderSettings();
   }
   document.querySelector('.bottom-nav').addEventListener('click', (e) => {
@@ -855,7 +998,7 @@
     const bar = $('empBar');
     const f = DATA.settings.currentEmpFilter;
     let html = `<button class="emp-chip all${f==='all'?' active':''}" data-emp="all">
-      <div class="avatar">👥</div><span>Все графики</span></button>`;
+      <div class="avatar">👥</div><span>${escapeHTML(t('allSchedules'))}</span></button>`;
     for (const e of DATA.employees) {
       const sName = escapeHTML(e.name);
       html += `<button class="emp-chip${f===e.id?' active':''}" data-emp="${e.id}">
@@ -900,6 +1043,7 @@
     $('legendGrid').innerHTML = DEFAULT_TEMPLATES.map(t =>
       `<div class="legend-item"><div class="legend-dot" style="background:${t.color}"></div><span>${escapeHTML(t.name)} (${t.hrs}ч)</span></div>`
     ).join('');
+    applyCalendarSearch();
   }
 
   // Кеш цветов для ускорения
@@ -917,7 +1061,7 @@
     if (invalidateStats) statsCache = null;
   }
   updateCaches();
-  
+
   function createCell(date, isOther) {
     const cell = document.createElement('div'); cell.className = 'day';
     const k = dayKey(date); cell.dataset.date = k; cell.tabIndex = isOther ? -1 : 0;
@@ -945,6 +1089,7 @@
       }
     }
     inner += `</div>`; cell.innerHTML = inner;
+    cell.dataset.searchText = buildDaySearchText(k, date, DATA.shifts[k] || []);
     if (selectedSet.has(k)) cell.classList.add('drag-selected');
     cellByKey.set(k, cell);
     return cell;
@@ -954,11 +1099,41 @@
     cellByKey.forEach((c, k) => c.classList.toggle('drag-selected', selectedSet.has(k)));
   }
 
+
+
+  function buildDaySearchText(k, date, shifts) {
+    const parts = [k, date.toLocaleDateString('ru-RU'), String(date.getDate()), RU_DAYS[date.getDay()], RU_MONTHS[date.getMonth()]];
+    if (!shifts.length) parts.push('без смен пусто свободно');
+    for (const s of shifts) {
+      const emp = getEmp(s.empId);
+      const t = TEMPLATES_MAP[s.type] || DEFAULT_TEMPLATES[0];
+      parts.push(emp?.name || 'Удалён', t.name, t.icon, s.start || '', s.end || '');
+    }
+    return parts.join(' ').toLowerCase();
+  }
+
+  function applyCalendarSearch() {
+    const inp = $('calendarSearchInput');
+    if (!inp) return;
+    const q = inp.value.trim().toLowerCase();
+    let matches = 0;
+    cellByKey.forEach((cell) => {
+      cell.classList.remove('search-match', 'search-dim');
+      if (!q) return;
+      const ok = (cell.dataset.searchText || '').includes(q);
+      cell.classList.toggle('search-match', ok);
+      cell.classList.toggle('search-dim', !ok);
+      if (ok) matches++;
+    });
+    if (q) $('calendarSearchInput').title = `Найдено дней: ${matches}`;
+  }
+  $('calendarSearchInput')?.addEventListener('input', debounce(applyCalendarSearch, 80));
+
   // DRAGGING AND SELECT INTERFACES
   (() => {
     const grid = $('daysGrid');
     const getCell = (x, y) => { const el = document.elementFromPoint(x, y); return el ? el.closest('.day') : null; };
-    
+
     let dragStartCell = null;
     let dragStartX = 0;
     let dragStartY = 0;
@@ -1231,8 +1406,8 @@
           <div><div class="name">${sName}</div><div class="role-small">${e.rateType==='day'?'По дням':'Почасовая'}</div></div>
         </div>
         <div class="stat-vals">
-          <div class="stat-val"><div class="v">${st.days}</div><div class="l">дней</div></div>
-          <div class="stat-val"><div class="v">${st.hours}</div><div class="l">часов</div></div>
+          <div class="stat-val"><div class="v">${st.days}</div><div class="l">${t('days')}</div></div>
+          <div class="stat-val"><div class="v">${st.hours}</div><div class="l">${t('hours')}</div></div>
         </div>
       </div>`;
     }).join('') || `<div style="text-align:center;font-size:11px;color:var(--text-dim);padding:4px;">Нет данных</div>`;
@@ -1262,7 +1437,7 @@
     }).join('') || `<div style="text-align:center;font-size:11px;color:var(--text-dim);padding:4px;">Нет данных</div>`;
 
     box.innerHTML = html;
-    $('totalSalarySummary').textContent = `Итого: ${total.toLocaleString('ru-RU')} ₽`;
+    $('totalSalarySummary').textContent = `${t('total')}: ${total.toLocaleString('ru-RU')} ${DATA.settings.currency || '₽'}`;
     renderSalaryChart(chartData, total);
   }
 
@@ -1270,8 +1445,8 @@
   function renderNotes() {
     const box = $('notesList'); const s = $('notesSearchInput').value.trim().toLowerCase();
     let l = DATA.personalNotes;
-    if (s) l = l.filter(n => n.title?.toLowerCase().includes(s) || n.body?.toLowerCase().includes(s));
-    if (!l.length) { box.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-dim);font-size:13px;">📝 ${s ? 'Ничего не найдено':'Заметок нет'}</div>`; return; }
+    if (s) l = l.filter(n => (n.title || '').toLowerCase().includes(s) || (n.body || '').toLowerCase().includes(s));
+    if (!l.length) { box.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-dim);font-size:13px;">📝 ${s ? t('nothingFound') : t('emptyNotes')}</div>`; return; }
 
     const ordered = l.slice().reverse();
     box.innerHTML = ordered.map((n) =>
@@ -1340,13 +1515,13 @@
 
   function openFullNoteEditor(note) {
     if (note) {
-      neTitle.textContent = 'Редактировать';
+      neTitle.textContent = t('noteEditor');
       neId.value = note.id;
       neTitleInput.value = note.title || '';
       neBodyTextarea.value = note.body || '';
       neDeleteBtn.style.display = 'block';
     } else {
-      neTitle.textContent = 'Новая заметка';
+      neTitle.textContent = t('noteNew');
       neId.value = '';
       neTitleInput.value = '';
       neBodyTextarea.value = '';
@@ -1360,7 +1535,7 @@
     var id = neId.value;
     var title = neTitleInput.value.trim();
     var body = neBodyTextarea.value.trim();
-    if (!title && !body) { toast('Заметка пуста'); return; }
+    if (!title && !body) { toast(t('noteEmpty')); return; }
     var dt = new Date().toLocaleDateString('ru-RU', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
     if (id) {
       var n = DATA.personalNotes.find(function(x) { return x.id === id; });
@@ -1368,7 +1543,7 @@
     } else {
       DATA.personalNotes.push({ id:'note_'+Date.now()+'_'+Math.random().toString(36).slice(2,5), title: title, body: body, date: dt });
     }
-    vibrate(15); saveData(false); neEditor.classList.remove('show'); renderNotes(); toast('✓ Сохранено');
+    vibrate(15); saveData(false); neEditor.classList.remove('show'); renderNotes(); toast(t('saved'));
   });
 
   neBackBtn.addEventListener('click', function() {
@@ -1403,6 +1578,8 @@
       </div>`
     ).join('');
     renderThemeSettings();
+    fillAppSettingsForm();
+
   }
   $('settingsEmpList').addEventListener('click', (e) => {
     const item = e.target.closest('.emp-list-item'); if (!item) return;
@@ -1481,6 +1658,135 @@
     toast('Сотрудник удалён');
   });
 
+
+
+  // TASKS / CHECKLISTS — готовые ПВЗ шаблоны
+  const TASK_PRIORITY_LABELS = { high: 'Важная', normal: 'Обычная', low: 'Низкая', open: 'Открытие', close: 'Закрытие', returns: 'Возвраты', inventory: 'Инвентаризация' };
+  const TASK_TEMPLATES = [
+    { id:'open', icon:'🌅', name:{ru:'Открытие смены',hy:'Հերթափոխի բացում',en:'Opening shift'}, sub:{ru:'Подготовить ПВЗ к работе',hy:'ՊՎԶ-ն պատրաստել աշխատանքի',en:'Prepare PVZ for work'}, items:{ru:['Включить свет, компьютер и оборудование','Проверить интернет и сканер','Проверить порядок в клиентской зоне','Проверить остаток пакетов и расходников','Открыть рабочие программы'],hy:['Միացնել լույսը, համակարգիչը և սարքավորումները','Ստուգել ինտերնետը և սկաները','Ստուգել հաճախորդների գոտու կարգը','Ստուգել փաթեթների և նյութերի մնացորդը','Բացել աշխատանքային ծրագրերը'],en:['Turn on lights, computer and equipment','Check internet and scanner','Check client area order','Check bags and supplies','Open work programs']} },
+    { id:'close', icon:'🌙', name:{ru:'Закрытие смены',hy:'Հերթափոխի փակում',en:'Closing shift'}, sub:{ru:'Закрыть день без ошибок',hy:'Փակել օրը առանց սխալների',en:'Close the day correctly'}, items:{ru:['Проверить незавершённые выдачи','Убрать рабочую зону','Сверить возвраты и проблемные посылки','Выключить оборудование','Закрыть ПВЗ и отметить замечания'],hy:['Ստուգել չավարտված հանձնումները','Մաքրել աշխատանքային գոտին','Ստուգել վերադարձներն ու խնդիրային առաքանիները','Անջատել սարքավորումները','Փակել ՊՎԶ-ն և նշել դիտարկումները'],en:['Check unfinished handouts','Clean the work area','Check returns and problem parcels','Turn off equipment','Close PVZ and note issues']} },
+    { id:'returns', icon:'↩️', name:{ru:'Возвраты',hy:'Վերադարձներ',en:'Returns'}, sub:{ru:'Контроль возвратов и спорных заказов',hy:'Վերադարձների և վիճելի պատվերների վերահսկում',en:'Return and dispute control'}, items:{ru:['Проверить список возвратов','Отложить спорные позиции отдельно','Сфотографировать повреждения при необходимости','Записать проблемные заказы в заметки','Передать информацию следующей смене'],hy:['Ստուգել վերադարձների ցուցակը','Առանձին դնել վիճելի դիրքերը','Անհրաժեշտության դեպքում լուսանկարել վնասները','Խնդիրային պատվերները գրանցել նոթերում','Տեղեկությունը փոխանցել հաջորդ հերթափոխին'],en:['Check return list','Put disputed items aside','Photograph damages if needed','Write problem orders in notes','Pass info to next shift']} },
+    { id:'inventory', icon:'📦', name:{ru:'Инвентаризация',hy:'Գույքագրում',en:'Inventory'}, sub:{ru:'Пакеты, расходники, порядок',hy:'Փաթեթներ, նյութեր, կարգ',en:'Bags, supplies, order'}, items:{ru:['Посчитать пакеты и расходники','Проверить чистоту склада','Отметить, что нужно заказать','Проверить зону хранения','Сохранить результат в заметку'],hy:['Հաշվել փաթեթներն ու նյութերը','Ստուգել պահեստի մաքրությունը','Նշել ինչ է պետք պատվիրել','Ստուգել պահման գոտին','Արդյունքը պահել նոթում'],en:['Count bags and supplies','Check storage cleanliness','Note what needs ordering','Check storage area','Save result in a note']} }
+  ];
+  let selectedTaskTemplateId = 'open';
+  let currentChecklist = (DATA.tasks && DATA.tasks[0]) || null;
+  function localized(obj) { const lang = DATA.settings.language || 'ru'; return obj?.[lang] || obj?.ru || ''; }
+  function taskLocale() {
+    const map = { ru:'ru-RU', hy:'hy-AM', en:'en-US', es:'es-ES', fr:'fr-FR', de:'de-DE', it:'it-IT', pt:'pt-PT', tr:'tr-TR', ar:'ar', zh:'zh-CN', hi:'hi-IN', fa:'fa-IR', ka:'ka-GE' };
+    return map[DATA.settings.language || 'ru'] || 'ru-RU';
+  }
+  function taskDateText(v, time = '') {
+    if (!v) return t('dueNone');
+    try {
+      const d = parseKey(v);
+      const txt = d.toLocaleDateString(taskLocale(), { day:'2-digit', month:'2-digit', year:'numeric' });
+      return time ? `${txt} ${time}` : txt;
+    } catch(_) { return time ? `${v} ${time}` : v; }
+  }
+  function renderTaskTemplates() {
+    const box = $('taskTemplateGrid'); if (!box) return;
+    box.innerHTML = TASK_TEMPLATES.map(tmp => `<button type="button" class="task-template-card${selectedTaskTemplateId === tmp.id ? ' active' : ''}" data-template="${tmp.id}">
+      <div class="task-template-ic">${tmp.icon}</div><div class="task-template-name">${escapeHTML(localized(tmp.name))}</div><div class="task-template-sub">${escapeHTML(localized(tmp.sub))}</div>
+    </button>`).join('');
+  }
+  function renderTasks() {
+    renderTaskTemplates();
+    const preview = $('taskCreatedPreview');
+    if (!preview) return;
+    if (!currentChecklist) { preview.hidden = true; preview.innerHTML = ''; return; }
+    const template = TASK_TEMPLATES.find(x => x.id === currentChecklist.templateId) || TASK_TEMPLATES[0];
+    const items = Array.isArray(currentChecklist.items) ? currentChecklist.items : [];
+    const doneCount = items.filter(i => i.done).length;
+    const pct = items.length ? Math.round(doneCount / items.length * 100) : 0;
+    preview.hidden = false;
+    preview.innerHTML = `<div class="task-created-title">${template.icon} ${escapeHTML(currentChecklist.title || localized(template.name))}</div>
+      <div class="task-progress"><div class="task-progress-fill" style="width:${pct}%"></div></div>
+      <div class="checklist-lines">${items.map((it, idx) => `<label class="checkline${it.done ? ' done' : ''}"><input type="checkbox" data-act="preview-item" data-idx="${idx}" ${it.done ? 'checked' : ''}/> <span>${escapeHTML(it.text || it)}</span></label>`).join('')}</div>`;
+  }
+  $('taskTemplateGrid')?.addEventListener('click', (e) => {
+    const b = e.target.closest('.task-template-card'); if (!b) return;
+    selectedTaskTemplateId = b.dataset.template || 'open'; renderTaskTemplates(); vibrate(8);
+  });
+  $('addTaskBtn')?.addEventListener('click', () => {
+    const template = TASK_TEMPLATES.find(x => x.id === selectedTaskTemplateId) || TASK_TEMPLATES[0];
+    const items = (template.items[DATA.settings.language || 'ru'] || template.items.ru).map(text => ({ text, done:false }));
+    currentChecklist = { id: 'task_'+Date.now()+'_'+Math.random().toString(36).slice(2,5), title: localized(template.name), templateId: template.id, priority: template.id, due: dayKey(new Date()), time: '', empId: '', items, done: false, createdAt: Date.now() };
+    DATA.tasks = [currentChecklist];
+    vibrate(12); saveData(false); renderTasks(); toast(t('checklistAdded'));
+  });
+  $('taskCreatedPreview')?.addEventListener('change', (e) => {
+    if (e.target.dataset.act !== 'preview-item' || !currentChecklist) return;
+    const idx = Number(e.target.dataset.idx);
+    if (currentChecklist.items?.[idx]) currentChecklist.items[idx].done = !!e.target.checked;
+    currentChecklist.done = !!currentChecklist.items?.length && currentChecklist.items.every(i => i.done);
+    DATA.tasks = [currentChecklist];
+    saveData(false); renderTasks(); vibrate(6);
+  });
+
+
+  // ENHANCED APP SETTINGS
+  function applyAppSettingsUi() {
+    const lang = DATA.settings.language || 'ru';
+    document.documentElement.style.fontSize = DATA.settings.fontSize === 'large' ? '17px' : '';
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
+    const navMap = { schedule:'schedule', notes:'notes', tasks:'tasks', settings:'settings' };
+    document.querySelectorAll('.bottom-nav .nav-btn[data-view]').forEach(btn => {
+      const label = btn.querySelector('span:not(.ic)'); if (label) label.textContent = t(navMap[btn.dataset.view] || btn.dataset.view);
+    });
+    const aboutLbl = $('aboutNavBtn')?.querySelector('span:not(.ic)'); if (aboutLbl) aboutLbl.textContent = t('about');
+    const searchHelp = document.querySelector('.search-help'); if (searchHelp) searchHelp.textContent = t('searchHelp');
+    if ($('calendarSearchInput')) $('calendarSearchInput').placeholder = t('searchCalendar');
+    if ($('todayBtn')) $('todayBtn').textContent = t('monthToday');
+    const sectionTitles = [
+      ['.legend h3','shiftTypes'], ['.stats h3','worked'], ['.salary-card h3','salaryCalc']
+    ];
+    sectionTitles.forEach(([sel,key]) => { const el = document.querySelector(sel); if (el && key !== 'salaryCalc') el.textContent = t(key); });
+    const salaryH = document.querySelector('.salary-card h3');
+    if (salaryH) salaryH.childNodes[0].nodeValue = t('salaryCalc') + ' ';
+    const settingsTitle = document.querySelector('#viewSettings .notes-title'); if (settingsTitle) settingsTitle.textContent = t('settingsTitle');
+    const settingsHeads = document.querySelectorAll('#viewSettings .section h3');
+    if (settingsHeads[0]) settingsHeads[0].textContent = t('languageSettings');
+    if (settingsHeads[1]) settingsHeads[1].textContent = t('employees');
+    if (settingsHeads[2]) settingsHeads[2].textContent = t('theme');
+    if (settingsHeads[3]) settingsHeads[3].textContent = t('education');
+    if (settingsHeads[4]) settingsHeads[4].textContent = t('backupReset');
+    const langLab = document.querySelector('label[for="settingsLanguage"]'); if (langLab) langLab.textContent = t('language');
+    if ($('addNewEmpBtn')) $('addNewEmpBtn').textContent = t('addEmployee');
+    if ($('settingsTourBtn')) $('settingsTourBtn').textContent = t('startTour');
+    if ($('exportJsonBtn')) $('exportJsonBtn').textContent = t('backup');
+    if ($('importBtn')) $('importBtn').textContent = t('importBackup');
+    if ($('clearAllDataBtn')) $('clearAllDataBtn').textContent = t('resetAll');
+    renderTaskTemplates();
+    renderTasks();
+  }
+  function fillAppSettingsForm() {
+    if ($('settingsLanguage')) $('settingsLanguage').value = DATA.settings.language || 'ru';
+  }
+  $('settingsLanguage')?.addEventListener('change', () => {
+    DATA.settings.language = $('settingsLanguage').value || 'ru';
+    saveData(false);
+    applyAppSettingsUi();
+    renderNotes(); renderTasks(); requestRender('empBar','calendar','stats','salary');
+    toast(t('settingsSaved'));
+  });
+
+  $('clearCacheReloadBtn')?.addEventListener('click', async () => {
+    try {
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map(r => r.update().catch(() => {})));
+      }
+      if (window.caches) {
+        const keys = await caches.keys();
+        await Promise.all(keys.filter(k => k.startsWith('pvz-graphik-')).map(k => caches.delete(k)));
+      }
+    } catch(_) {}
+    toast(t('appUpdating'));
+    setTimeout(() => location.reload(), 500);
+  });
+
   // ABOUT PROGRAM INFO
   $('aboutCloseBtn').addEventListener('click', () => $('aboutModal').classList.remove('show'));
 
@@ -1510,6 +1816,9 @@
     const y = currentDate.getFullYear();
     const m = currentDate.getMonth();
     const monthText = `${RU_MONTHS[m]} ${y}`;
+    const appName = DATA.settings.pvzName || 'ПВЗ График';
+    const appAddress = DATA.settings.pvzAddress || '';
+    const currency = DATA.settings.currency || '₽';
     let total = 0;
 
     const employeeRows = DATA.employees.map((e) => {
@@ -1546,12 +1855,19 @@
           icon: t ? t.icon : '',
           start: s.start || '',
           end: s.end || '',
-          hours: t ? t.hrs : 12
+          hours: t ? t.hrs : 12,
+          amount: emp ? (emp.rateType === 'day' ? (emp.rate || 0) : ((emp.rate || 0) * (t ? t.hrs : 12))) : 0
         });
       }
     }
 
-    return { year: y, month: m, monthText, total, employeeRows, shiftRows };
+    const noteRows = (DATA.personalNotes || []).map(n => [n.pinned ? 'Да' : '', n.important ? 'Да' : '', n.category || 'Общее', n.title || 'Без имени', n.body || '', n.date || '']);
+    const taskRows = (DATA.tasks || []).map(t => {
+      const emp = t.empId ? getEmp(t.empId) : null;
+      return [t.done ? 'Выполнено' : 'Активно', TASK_PRIORITY_LABELS[t.priority || 'normal'] || 'Обычная', taskDateText(t.due, t.time || ''), emp ? emp.name : '', t.title || ''];
+    });
+    const typeSummary = DEFAULT_TEMPLATES.map(t => ({ name: t.name, count: shiftRows.filter(r => r.shift === t.name).length, hours: shiftRows.filter(r => r.shift === t.name).reduce((a,r)=>a+(r.hours||0),0) }));
+    return { year: y, month: m, monthText, appName, appAddress, currency, total, employeeRows, shiftRows, noteRows, taskRows, typeSummary };
   }
 
   function blobToBase64(blob) {
@@ -1581,16 +1897,61 @@
     return false;
   }
 
+  function isAndroidWebView() {
+    const ua = navigator.userAgent || '';
+    return /Android/i.test(ua) && (/; wv\)/i.test(ua) || /Version\/\d+\.\d+/i.test(ua) || !/Chrome\/\d+/i.test(ua));
+  }
+
+  async function tryWebShareFile(blob, filename, mime) {
+    if (!navigator.share || typeof File === 'undefined') return false;
+    try {
+      const file = new File([blob], filename, { type: mime || blob.type || 'application/octet-stream' });
+      const shareData = { files: [file], title: filename, text: `Файл из приложения ПВЗ График: ${filename}` };
+      if (navigator.canShare && !navigator.canShare(shareData)) return false;
+      await navigator.share(shareData);
+      return true;
+    } catch(err) {
+      if (err && err.name === 'AbortError') throw err;
+      console.warn('[Export] Web Share failed:', err);
+      return false;
+    }
+  }
+
+  async function tryAnchorDownload(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.rel = 'noopener';
+    link.target = '_blank';
+    link.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;';
+    document.body.appendChild(link);
+    link.click();
+    // Не отзываем ссылку сразу — Android WebView часто не успевает начать загрузку.
+    setTimeout(() => { try { link.remove(); URL.revokeObjectURL(url); } catch(_) {} }, 60000);
+    return true;
+  }
+
   async function saveBlobToDevice(blob, filename, mime) {
     // 1) Если APK-конвертер добавил JS bridge — используем его.
     if (await tryNativeSave(blob, filename, mime)) return true;
 
-    // 2) Desktop Chrome/Edge: системное окно «Сохранить как».
+    const inAndroidWebView = isAndroidWebView();
+
+    // 2) В Android WebView/WebIntoApp Blob-ссылки часто НЕ скачиваются.
+    // Поэтому сначала открываем системное меню «Поделиться/Сохранить файл».
+    if (inAndroidWebView) {
+      toast('📲 Откроется меню: выберите «Сохранить» или нужное приложение');
+      if (await tryWebShareFile(blob, filename, mime)) return true;
+    }
+
+    // 3) Desktop Chrome/Edge: системное окно «Сохранить как».
     if (window.showSaveFilePicker) {
       try {
+        const ext = '.' + filename.split('.').pop();
         const handle = await window.showSaveFilePicker({
           suggestedName: filename,
-          types: [{ description: filename.split('.').pop()?.toUpperCase() || 'File', accept: { [mime]: ['.' + filename.split('.').pop()] } }]
+          types: [{ description: filename.split('.').pop()?.toUpperCase() || 'File', accept: { [mime]: [ext] } }]
         });
         const writable = await handle.createWritable();
         await writable.write(blob);
@@ -1602,16 +1963,18 @@
       }
     }
 
-    // 3) Универсальная загрузка через Blob URL. Не отзываем ссылку сразу — WebView часто не успевает скачать файл.
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.rel = 'noopener';
-    link.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;';
-    document.body.appendChild(link);
-    link.click();
-    setTimeout(() => { try { link.remove(); URL.revokeObjectURL(url); } catch(_) {} }, 60000);
+    // 4) Обычный браузер: стандартная загрузка через Blob URL.
+    await tryAnchorDownload(blob, filename);
+
+    // 5) Если это WebView и загрузка по Blob URL была проигнорирована — даём второй ручной вариант.
+    if (inAndroidWebView) {
+      setTimeout(async () => {
+        try {
+          toast('Если файл не сохранился — выберите приложение в меню');
+          await tryWebShareFile(blob, filename, mime);
+        } catch(_) {}
+      }, 1200);
+    }
     return true;
   }
 
@@ -1704,30 +2067,52 @@
 <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">${cols}<sheetData>${body}</sheetData></worksheet>`;
   }
   function createXlsxBlob(report) {
+    const money = (n) => Number(n || 0);
     const summaryRows = [
-      ['Отчёт: ПВЗ График', report.monthText],
+      [report.appName, report.monthText],
+      ['Адрес', report.appAddress || ''],
+      ['Создано', new Date().toLocaleString('ru-RU')],
+      [],
+      ['ИТОГ ПО МЕСЯЦУ', '', '', '', '', money(report.total)],
       [],
       ['Сотрудник', 'Дней', 'Часов', 'Ставка', 'Тип ставки', 'Начислено'],
-      ...report.employeeRows.map((r) => [r.name, r.days, r.hours, r.rate, r.rateType, r.earned]),
+      ...report.employeeRows.map((r) => [r.name, r.days, r.hours, r.rate, r.rateType, money(r.earned)]),
       [],
-      ['ИТОГО', '', '', '', '', report.total]
+      ['Тип смены', 'Количество', 'Часов'],
+      ...report.typeSummary.map(r => [r.name, r.count, r.hours])
     ];
     const shiftRows = [
-      ['Дата', 'День недели', 'Сотрудник', 'Смена', 'Начало', 'Конец', 'Часов'],
-      ...report.shiftRows.map((r) => [r.date, r.day, r.employee, r.shift, r.start, r.end, r.hours])
+      ['Дата', 'День недели', 'Сотрудник', 'Смена', 'Начало', 'Конец', 'Часов', 'Сумма за смену'],
+      ...report.shiftRows.map((r) => [r.date, r.day, r.employee, r.shift, r.start, r.end, r.hours, money(r.amount)])
+    ];
+    const salaryRows = [
+      ['Сотрудник', 'Дней', 'Часов', 'Ставка', 'Тип ставки', 'Начислено', 'К выплате'],
+      ...report.employeeRows.map((r) => [r.name, r.days, r.hours, r.rate, r.rateType, money(r.earned), money(r.earned)]),
+      ['ИТОГО', '', '', '', '', money(report.total), money(report.total)]
+    ];
+    const notesRows = [
+      ['Закреплено', 'Важно', 'Категория', 'Заголовок', 'Текст', 'Дата'],
+      ...report.noteRows
+    ];
+    const tasksRows = [
+      ['Статус', 'Приоритет', 'Срок', 'Сотрудник', 'Задача'],
+      ...report.taskRows
     ];
 
     const files = [
       { name: '[Content_Types].xml', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>` },
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet3.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet4.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet5.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>` },
       { name: '_rels/.rels', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>` },
       { name: 'xl/workbook.xml', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Отчёт" sheetId="1" r:id="rId1"/><sheet name="Смены" sheetId="2" r:id="rId2"/></sheets></workbook>` },
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Итоги" sheetId="1" r:id="rId1"/><sheet name="Смены" sheetId="2" r:id="rId2"/><sheet name="Зарплата" sheetId="3" r:id="rId3"/><sheet name="Заметки" sheetId="4" r:id="rId4"/><sheet name="Задачи" sheetId="5" r:id="rId5"/></sheets></workbook>` },
       { name: 'xl/_rels/workbook.xml.rels', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/></Relationships>` },
-      { name: 'xl/worksheets/sheet1.xml', data: sheetXml(summaryRows, [24, 10, 10, 12, 14, 14]) },
-      { name: 'xl/worksheets/sheet2.xml', data: sheetXml(shiftRows, [14, 16, 22, 16, 10, 10, 10]) }
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet3.xml"/><Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet4.xml"/><Relationship Id="rId5" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet5.xml"/></Relationships>` },
+      { name: 'xl/worksheets/sheet1.xml', data: sheetXml(summaryRows, [28, 16, 12, 12, 16, 16]) },
+      { name: 'xl/worksheets/sheet2.xml', data: sheetXml(shiftRows, [14, 16, 22, 16, 10, 10, 10, 16]) },
+      { name: 'xl/worksheets/sheet3.xml', data: sheetXml(salaryRows, [22, 10, 10, 14, 14, 16, 16]) },
+      { name: 'xl/worksheets/sheet4.xml', data: sheetXml(notesRows, [12, 10, 18, 28, 60, 18]) },
+      { name: 'xl/worksheets/sheet5.xml', data: sheetXml(tasksRows, [14, 14, 14, 22, 56]) }
     ];
     return createZipBlob(files, EXPORT_MIME.xlsx);
   }
@@ -1784,9 +2169,9 @@
   function drawPdfPageHeader(ctx, report, pageNo) {
     ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 1240, 1754);
     ctx.fillStyle = '#111827'; ctx.font = '700 34px Arial, sans-serif';
-    ctx.fillText(`ПВЗ График — ${report.monthText}`, 70, 76);
+    fitText(ctx, `${report.appName || 'ПВЗ График'} — ${report.monthText}`, 70, 76, 960);
     ctx.fillStyle = '#64748b'; ctx.font = '18px Arial, sans-serif';
-    ctx.fillText(`Создано: ${new Date().toLocaleDateString('ru-RU')}  •  Страница ${pageNo}`, 70, 108);
+    fitText(ctx, `${report.appAddress ? report.appAddress + '  •  ' : ''}Создано: ${new Date().toLocaleDateString('ru-RU')}  •  Страница ${pageNo}`, 70, 108, 1080);
     ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(70, 132); ctx.lineTo(1170, 132); ctx.stroke();
   }
   function drawPdfFooter(ctx) {
@@ -1909,6 +2294,17 @@
         tableRow([r.date, r.day, r.employee, r.shift, `${r.start}–${r.end}`, r.hours, ''], shiftW, { bg: i % 2 ? '#fafafa' : '#ffffff' });
       });
     }
+
+    sectionTitle('Важные заметки и активные задачи');
+    const simpleW = [220, 880];
+    tableHeader(['Раздел', 'Содержание'], simpleW);
+    const importantNotes = (DATA.personalNotes || []).filter(n => n.important || n.pinned).slice(0, 8);
+    const activeTasks = (DATA.tasks || []).filter(t => !t.done).slice(0, 10);
+    if (!importantNotes.length && !activeTasks.length) {
+      tableRow(['Информация', 'Нет важных заметок и активных задач'], simpleW);
+    }
+    importantNotes.forEach(n => tableRow([`Заметка: ${n.category || 'Общее'}`, `${n.title || 'Без имени'} — ${(n.body || '').slice(0, 120)}`], simpleW));
+    activeTasks.forEach(t => tableRow([`Задача: ${TASK_PRIORITY_LABELS[t.priority || 'normal']}`, `${taskDateText(t.due, t.time || '')} — ${t.title || ''}`], simpleW));
 
     drawPdfFooter(ctx);
     return pages;
@@ -2396,7 +2792,9 @@
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js').catch((err) => {
+        navigator.serviceWorker.register('./service-worker.js').then((reg) => {
+          reg.update().catch(() => {});
+        }).catch((err) => {
           console.warn('[PWA] Service Worker registration failed:', err);
         });
       });
@@ -2405,6 +2803,7 @@
 
   // INITIAL STATE RECOVERY & BOOT
   applyTheme(DATA.settings.theme || 'dark', false);
+  applyAppSettingsUi();
   setupPWA();
   renderEmpBar(); renderCalendar(); renderStats(); renderSalary();
   setTimeout(showTourNudge, 900);

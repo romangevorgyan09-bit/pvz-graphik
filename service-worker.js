@@ -1,6 +1,6 @@
 'use strict';
 
-const CACHE_NAME = 'pvz-graphik-v5';
+const CACHE_NAME = 'pvz-graphik-v11';
 const APP_SHELL = [
   './index.html',
   './manifest.json',
